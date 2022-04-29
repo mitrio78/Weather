@@ -8,22 +8,22 @@
 import UIKit
 
 struct DailyWeatherModel {
-    var date = Date()
+    var date: Date
     var dateStrind: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .short
-        dateFormatter.dateFormat = "EEE, d/MM"
+        dateFormatter.dateFormat = "EEE, d"
         return dateFormatter.string(from: date)
     }
     
     var dailyMaxTemp: Double
     var dMaxTempString: String {
-        return String(format: "%.0fº", dailyMaxTemp)
+        return String(format: "макс.: %.0fº", dailyMaxTemp)
     }
     
     var dailyMinTemp: Double
     var dMinTempString: String {
-        return String(format: "%.0fº", dailyMinTemp)
+        return String(format: "мин.: %.0fº", dailyMinTemp)
     }
     
     var dailyHumidity: Double
@@ -56,12 +56,4 @@ struct DailyWeatherModel {
             return UIImage(systemName: "exclamationmark.icloud.fill")!
         }
     }
-    
-    static let testDailyData: [DailyWeatherModel] = [
-        DailyWeatherModel(dailyMaxTemp: -3, dailyMinTemp: -5, dailyHumidity: 78, weatherCode: 300),
-        DailyWeatherModel(dailyMaxTemp: 0, dailyMinTemp: 4, dailyHumidity: 98, weatherCode: 800),
-        DailyWeatherModel(dailyMaxTemp: -2, dailyMinTemp: 5, dailyHumidity: 45, weatherCode: 801),
-        DailyWeatherModel(dailyMaxTemp: 3, dailyMinTemp: 8, dailyHumidity: 56, weatherCode: 700),
-        DailyWeatherModel(dailyMaxTemp: 5, dailyMinTemp: 9, dailyHumidity: 54, weatherCode: 500)
-    ]
 }

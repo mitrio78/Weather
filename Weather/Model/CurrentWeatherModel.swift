@@ -8,6 +8,7 @@
 import Foundation
 
 struct CurrentWeatherModel {
+    
     var temp: Double
     var tempString: String {
         return String(format: "%.0fº", temp)
@@ -23,7 +24,6 @@ struct CurrentWeatherModel {
     var conditions: String
     
     var location: String
-
     
     init?(currentWeatherData: CurrentWeatherData) {
         location = currentWeatherData.name
@@ -31,6 +31,9 @@ struct CurrentWeatherModel {
         maxTemp = currentWeatherData.main.temp_max
         minTemp = currentWeatherData.main.temp_min
         conditions = currentWeatherData.weather[0].description
+        print("currentWeatherModel INIT")
     }
+    
+    
 }
 

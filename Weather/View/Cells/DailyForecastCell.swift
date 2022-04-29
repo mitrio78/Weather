@@ -14,7 +14,7 @@ class DailyForecastCell: UITableViewCell {
     @IBOutlet weak var dailyMinTempLabel: UILabel!
     @IBOutlet weak var dailyImageView: UIImageView!
     @IBOutlet weak var dailyHumidity: UILabel!
-    
+
     override class func awakeFromNib() {
         super.awakeFromNib()
     }

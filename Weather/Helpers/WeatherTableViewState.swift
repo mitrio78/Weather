@@ -7,21 +7,13 @@
 
 import UIKit
 
-class WeatherDetailViewModel: NSObject {
+class WeatherTableViewState: NSObject {
     
     enum WeatherSection: Int, CaseIterable {
+                
         case currentWeather
         case hourlyForecast
         case dailyForecast
-        
-        var numberOfRows: Int {
-            switch self {
-            case .currentWeather, .hourlyForecast:
-                return 1
-            case .dailyForecast:
-                return 5
-            }
-        }
 
         var displayText: String {
             switch self {
@@ -30,7 +22,7 @@ class WeatherDetailViewModel: NSObject {
             case .hourlyForecast:
                 return "Почасовой прогноз"
             case .dailyForecast:
-                return "Прогноз на 5 дней"
+                return ""
             }
         }
         

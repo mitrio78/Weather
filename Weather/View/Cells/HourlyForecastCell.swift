@@ -6,20 +6,24 @@
 //
 
 import UIKit
-//import SnapKit
 
 class HourlyForecastCell: UITableViewCell {
-    let weather = HourlyWeatherModel.testData
+    
+    var viewModel: WeatherViewModelProtocol?
+    var weather: [HourlyWeatherModel]?
     
     private let collectionViewLayout = UICollectionViewFlowLayout()
     lazy private var collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
     
     override class func awakeFromNib() {
         super.awakeFromNib()
+        
     }
     
     override func layoutSubviews() {
         setupUI()
+        viewModel = WeatherTableViewViewModel()
+        weather = viewModel?.hourlyWeatherData
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -32,32 +36,26 @@ class HourlyForecastCell: UITableViewCell {
 }
 
 extension HourlyForecastCell {
-    
     private func setupUI() {
         collectionViewLayout.scrollDirection = .horizontal
-        
         collectionView.showsHorizontalScrollIndicator = false
-
         let nibCell = UINib(nibName: "HourlyCollectionCell", bundle: nil)
         collectionView.register(nibCell, forCellWithReuseIdentifier: HourlyWeatherCollectionCell.identifier)
-        
         collectionView.delegate = self
         collectionView.dataSource = self
-
         addSubview(collectionView)
-        
         collectionView.frame = contentView.bounds
-
     }
 }
 
 extension HourlyForecastCell: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return weather.count
+        return weather!.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HourlyWeatherCollectionCell.identifier, for: indexPath) as! HourlyWeatherCollectionCell
+        guard let weather = weather else { return cell }
         cell.hourlyImageView.image = weather[indexPath.item].weatherIcon
         cell.hourLabel.text = weather[indexPath.item].hourString
         cell.hourlyWeatherLabel.text = "\(weather[indexPath.item].hourString)ºC"

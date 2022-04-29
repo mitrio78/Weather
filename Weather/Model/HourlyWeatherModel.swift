@@ -44,12 +44,5 @@ struct HourlyWeatherModel {
         }
     }
     
-    static var testData: [HourlyWeatherModel] = [
-        HourlyWeatherModel(hTemp: 7.0, windSpeed: 6.0, hourlyTime: Date(), hourString: "5", weatherCode: 802),
-        HourlyWeatherModel(hTemp: 8.0, windSpeed: 5.0, hourlyTime: Date(), hourString: "6", weatherCode: 800),
-        HourlyWeatherModel(hTemp: 5.0, windSpeed: 7.0, hourlyTime: Date(), hourString: "7", weatherCode: 300),
-        HourlyWeatherModel(hTemp: 7.0, windSpeed: 8.0, hourlyTime: Date(), hourString: "8", weatherCode: 802),
-        HourlyWeatherModel(hTemp: 5.0, windSpeed: 9.0, hourlyTime: Date(), hourString: "9", weatherCode: 800),
-        HourlyWeatherModel(hTemp: 5.0, windSpeed: 10.0, hourlyTime: Date(), hourString: "10", weatherCode: 300)
-    ]
+
 }

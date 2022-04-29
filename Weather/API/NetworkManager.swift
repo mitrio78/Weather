@@ -37,6 +37,7 @@ class NetworkManager {
             let currentWeatherData = try decoder.decode(CurrentWeatherData.self, from: data)
             guard let currentWeather = CurrentWeatherModel(currentWeatherData: currentWeatherData) else { return nil}
             print(currentWeather.conditions)
+            print(currentWeather.location)
             return currentWeather
         } catch let error as NSError {
             print(error.localizedDescription)
@@ -45,6 +46,7 @@ class NetworkManager {
     }
     
     fileprivate func performRequest(with urlString: String) {
+        print("Begin Network request")
         guard let url = URL(string: urlString) else { return }
         let session = URLSession(configuration: .default)
         let task = session.dataTask(with: url) { data, response, error in
@@ -56,6 +58,7 @@ class NetworkManager {
                 }
             }
         }
+        print("Task resumed")
         task.resume()
     }
 }
