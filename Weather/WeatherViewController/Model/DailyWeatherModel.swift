@@ -11,26 +11,21 @@ struct DailyWeatherModel {
     var date: Date
     var dateStrind: String {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateFormatter.dateFormat = "EEE, d"
+        dateFormatter.dateFormat = "d MMMM"
         return dateFormatter.string(from: date)
     }
-    
     var dailyMaxTemp: Double
     var dMaxTempString: String {
         return String(format: "макс.: %.0fº", dailyMaxTemp)
     }
-    
     var dailyMinTemp: Double
     var dMinTempString: String {
         return String(format: "мин.: %.0fº", dailyMinTemp)
     }
-    
-    var dailyHumidity: Double
+    var dailyHumidity: Int
     var dHumidityString: String {
-        return String(format: "%.0f%", dailyHumidity)
+        return "\(String(dailyHumidity))%"
     }
-    
     var weatherCode: Int
     var weatherIcon: UIImage {
         switch weatherCode {
@@ -55,5 +50,13 @@ struct DailyWeatherModel {
         default:
             return UIImage(systemName: "exclamationmark.icloud.fill")!
         }
+    }
+
+    init?(date: Date, dailyMaxTemp: Double, dailyMinTemp: Double, dailyHumidity: Int, weatherCode: Int) {
+        self.date = date
+        self.dailyMinTemp = dailyMinTemp
+        self.dailyMaxTemp = dailyMaxTemp
+        self.weatherCode = weatherCode
+        self.dailyHumidity = dailyHumidity
     }
 }

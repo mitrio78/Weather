@@ -10,11 +10,11 @@ import UIKit
 class HourlyForecastCell: UITableViewCell {
     
     var viewModel: WeatherViewModelProtocol?
-    var weather: [HourlyWeatherModel]?
+    var hourlyViewModel: [HourlyWeatherModel]?
     
     private let collectionViewLayout = UICollectionViewFlowLayout()
     lazy private var collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
-    
+        
     override class func awakeFromNib() {
         super.awakeFromNib()
         
@@ -22,12 +22,23 @@ class HourlyForecastCell: UITableViewCell {
     
     override func layoutSubviews() {
         setupUI()
-        viewModel = WeatherTableViewViewModel()
-        weather = viewModel?.hourlyWeatherData
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        print("Cell init")
+        viewModel = WeatherTableViewViewModel()
+        
+        check(viewModel: viewModel)
+    
+    }
+    
+    private func check(viewModel: WeatherViewModelProtocol?) {
+        guard let _ = viewModel else {
+            print("No Model")
+            return
+        }
+        print("there is model")
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -50,16 +61,25 @@ extension HourlyForecastCell {
 
 extension HourlyForecastCell: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return weather!.count
+        return hourlyViewModel?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HourlyWeatherCollectionCell.identifier, for: indexPath) as! HourlyWeatherCollectionCell
-        guard let weather = weather else { return cell }
-        cell.hourlyImageView.image = weather[indexPath.item].weatherIcon
-        cell.hourLabel.text = weather[indexPath.item].hourString
-        cell.hourlyWeatherLabel.text = "\(weather[indexPath.item].hourString)ºC"
+
+        guard let hourlyWeather = hourlyViewModel else {return cell}
+        cell.hourlyWeatherLabel.text = hourlyWeather[indexPath.item].htempString
+        cell.hourLabel.text = hourlyWeather[indexPath.item].hourString
+        cell.hourlyImageView.image = hourlyWeather[indexPath.item].weatherIcon
         return cell
+    }
+    
+    func configure(_ viewModel: [HourlyWeatherModel]?) {
+        guard let viewModel = viewModel else {
+            return
+        }
+        self.hourlyViewModel = viewModel
+        collectionView.reloadData()
     }
 }
 

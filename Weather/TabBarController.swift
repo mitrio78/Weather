@@ -16,9 +16,7 @@ class TabBarController: UITabBarController {
 
         let searchVC = SearchViewController()
         let weatherVC = WeatherViewController()
-//        let mainVC = ViewController()
         let navigationVC = UINavigationController(rootViewController: searchVC)
-//        mainVC.title = "Main"
         navigationVC.title = "Поиск"
         weatherVC.title = "Погода"
         navigationVC.navigationBar.backgroundColor = .white

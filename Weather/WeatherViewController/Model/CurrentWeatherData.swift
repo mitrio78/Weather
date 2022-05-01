@@ -8,9 +8,15 @@
 import Foundation
 
 struct CurrentWeatherData: Codable {
+    let coord: Coord
     let name: String
     let main: Main
     let weather: [Weather]
+}
+
+struct Coord: Codable {
+    let lon: Double
+    let lat: Double
 }
 
 struct Main: Codable {

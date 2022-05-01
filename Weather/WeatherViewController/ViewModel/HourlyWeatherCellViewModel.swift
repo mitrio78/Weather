@@ -6,7 +6,12 @@
 //
 
 import Foundation
+import UIKit
 
 class HourlyWeatherCellViewModel {
+    var hourlyWeather: [HourlyWeatherModel]
     
+    init(hourlyWeather: [HourlyWeatherModel]) {
+        self.hourlyWeather = hourlyWeather
+    }
 }

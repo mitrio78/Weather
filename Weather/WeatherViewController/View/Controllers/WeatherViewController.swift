@@ -6,7 +6,6 @@
 //
 
 import UIKit
-//import Pods_Weather
 
 class WeatherViewController: UITableViewController {
     
@@ -16,40 +15,39 @@ class WeatherViewController: UITableViewController {
         super.viewDidLoad()
         registerCells()
         viewModel = WeatherTableViewViewModel()
-        print(#function)
+
+        viewModel?.fetchCurrentWeather { [weak self] in
+            DispatchQueue.main.async {
+                self?.tableView.reloadData()
+            }
+        }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        print(#function)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        print(#function)
-    }
-    
-    private func dequeueAndConfigureCell(for indexPath: IndexPath, from tableView: UITableView) -> UITableViewCell {
+    private func сonfigureCellInSections(for indexPath: IndexPath, from tableView: UITableView) -> UITableViewCell {
         guard let section = WeatherTableViewState.WeatherSection(rawValue: indexPath.section) else {
             fatalError("Section index out of range")
         }
         guard let viewModel = viewModel else {
+            //TODO: Alert Controller
             return UITableViewCell()
         }
         let identifier = section.cellIdentifier(for: indexPath.row)
         switch section {
         case .currentWeather:
-            let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! CurrentWeatherCell
-            cell.currentViewModel = viewModel.getCurrentWeatherCellViewModel()
-            return cell
+            let currentWeatherCell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! CurrentWeatherCell
+            currentWeatherCell.configure(viewModel: viewModel)
+            return currentWeatherCell
         case  .hourlyForecast:
-            let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! HourlyForecastCell
-            return cell
+            let hourlyWeatherCell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! HourlyForecastCell
+            hourlyWeatherCell.configure(viewModel.hourlyWeatherData)
+            return hourlyWeatherCell
         case .dailyForecast:
-            let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! DailyForecastCell
-            setupDailyCell(cell: cell, for: indexPath)
-            return cell
+            let dailyForecastCell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! DailyForecastCell
+            guard let dailyWeather = viewModel.dailyWeatherData else { return dailyForecastCell}
+            dailyForecastCell.setupDailyCell(for: indexPath, with: dailyWeather)
+            return dailyForecastCell
         }
     }
-    
     private func registerCells() {
         let nibCW = UINib(nibName: "CurrentWeatherCell", bundle: nil)
         let nibHW = UINib(nibName: "HourlyForecastCell", bundle: nil)
@@ -59,16 +57,7 @@ class WeatherViewController: UITableViewController {
         tableView.register(nibDW, forCellReuseIdentifier: "DailyForecastCell")
     }
     //TODO: do it in ViewModel
-    private func setupDailyCell(cell: DailyForecastCell,for indexPath: IndexPath) {
-        guard let weather = viewModel?.dailyWeatherData else {
-            return
-        }
-        cell.dailyHumidity.text = "\(weather[indexPath.row].dHumidityString)%"
-        cell.dailyImageView.image = weather[indexPath.row].weatherIcon
-        cell.dailyMaxTempLabel.text = weather[indexPath.row].dMaxTempString
-        cell.dailyMinTempLabel.text = weather[indexPath.row].dMinTempString
-        cell.dayLabel.text = weather[indexPath.row].dateStrind
-    }
+
 }
 // MARK: - TableView DataSource
 
@@ -80,12 +69,12 @@ extension WeatherViewController {
         case .currentWeather, .hourlyForecast:
             return 1
         case .dailyForecast:
-            return viewModel?.numberOfRowsInDailyWeatherSection() ?? 0
+            return viewModel?.dailyWeatherData?.count ?? 0
         }
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        dequeueAndConfigureCell(for: indexPath, from: tableView)
+        сonfigureCellInSections(for: indexPath, from: tableView)
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -100,7 +89,7 @@ extension WeatherViewController {
         case .currentWeather, .hourlyForecast:
             return section.displayText
         case .dailyForecast:
-            guard let numberOfRows = viewModel?.numberOfRowsInDailyWeatherSection() else { return "" }
+            guard let numberOfRows = viewModel?.dailyWeatherData?.count else { return "" }
             return "Прогноз на \(numberOfRows) дней"
         }
     }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class WeatherTableViewState: NSObject {
+struct WeatherTableViewState {
     
     enum WeatherSection: Int, CaseIterable {
                 
@@ -40,11 +40,11 @@ class WeatherTableViewState: NSObject {
         func cellIdentifier(for row: Int) -> String {
             switch self {
             case .currentWeather:
-                return "CurrentWeatherCell"
+                return String(describing: CurrentWeatherCell.self)
             case .hourlyForecast:
                 return "HourlyForecastCell"
             case .dailyForecast:
-                return "DailyForecastCell"
+                return String(describing: DailyForecastCell.self)
             }
         }
     }

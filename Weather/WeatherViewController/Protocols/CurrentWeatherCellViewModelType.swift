@@ -6,10 +6,13 @@
 //
 
 import Foundation
+import CoreLocation
 
 protocol CurrentWeatherCellViewModelType: AnyObject {
     var cityName: String { get }
     var currentTemp: String { get }
     var currentConditions: String { get }
     var currentMaxMinTempString: String { get }
+    var latitude: CLLocationDegrees { get }
+    var longitude: CLLocationDegrees { get }
 }

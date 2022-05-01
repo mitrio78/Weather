@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 struct CurrentWeatherModel {
     
@@ -24,6 +25,8 @@ struct CurrentWeatherModel {
     var conditions: String
     
     var location: String
+    var latitude: CLLocationDegrees
+    var longitude: CLLocationDegrees
     
     init?(currentWeatherData: CurrentWeatherData) {
         location = currentWeatherData.name
@@ -31,9 +34,9 @@ struct CurrentWeatherModel {
         maxTemp = currentWeatherData.main.temp_max
         minTemp = currentWeatherData.main.temp_min
         conditions = currentWeatherData.weather[0].description
-        print("currentWeatherModel INIT")
+        latitude = CLLocationDegrees(currentWeatherData.coord.lat)
+        longitude = CLLocationDegrees(currentWeatherData.coord.lon)
+        print("lat: \(latitude), lon: \(longitude)")
     }
-    
-    
 }
 

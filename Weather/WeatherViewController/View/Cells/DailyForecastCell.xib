@@ -61,7 +61,7 @@
                 </constraints>
             </tableViewCellContentView>
             <connections>
-                <outlet property="dailyHumidity" destination="9IW-bI-lal" id="Gwf-Gq-mZN"/>
+                <outlet property="dailyHumidityLabel" destination="9IW-bI-lal" id="Gwf-Gq-mZN"/>
                 <outlet property="dailyImageView" destination="1ZH-Bf-4G1" id="9ZC-SP-Uup"/>
                 <outlet property="dailyMaxTempLabel" destination="58v-Ju-aCX" id="CEW-Mx-kSF"/>
                 <outlet property="dailyMinTempLabel" destination="L7k-lj-cAU" id="3H5-De-mfk"/>

@@ -9,16 +9,17 @@ import Foundation
 import UIKit
 
 struct HourlyWeatherModel {
-    
     var hTemp: Double
     var htempString: String {
-        return String(hTemp)
+        return String("\(Int(hTemp))ºC")
     }
-    var windSpeed: Double
     var hourlyTime: Date
-    var hourString: String
+    var hourString: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "H"
+        return dateFormatter.string(from: hourlyTime)
+    }
     var weatherCode: Int
-    
     var weatherIcon: UIImage {
         switch weatherCode {
         case 200...232:
@@ -44,5 +45,9 @@ struct HourlyWeatherModel {
         }
     }
     
-
+    init?(time: Date, temp: Double, weatherID: Int) {
+        hTemp = temp
+        hourlyTime = time
+        weatherCode = weatherID
+    }
 }
