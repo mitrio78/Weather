@@ -6,12 +6,25 @@
 //
 
 import Foundation
-import UIKit
 
-class HourlyWeatherCellViewModel {
-    var hourlyWeather: [HourlyWeatherModel]
+class HourlyWeatherCellViewModel: HourlyWeatherCellViewModelProtocol {
+
+    var hourlyWeather: HourlyWeatherModel
     
-    init(hourlyWeather: [HourlyWeatherModel]) {
-        self.hourlyWeather = hourlyWeather
+    var hTempString: String {
+        return hourlyWeather.htempString
     }
+    
+    var hourString: String {
+        return hourlyWeather.hourString
+    }
+    
+    var weatherId: Int {
+        return hourlyWeather.weatherCode
+    }
+    
+    init(hourlyModel: HourlyWeatherModel) {
+        self.hourlyWeather = hourlyModel
+    }
+    
 }

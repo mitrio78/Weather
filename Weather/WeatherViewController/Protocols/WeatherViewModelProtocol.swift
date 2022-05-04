@@ -9,9 +9,10 @@ import Foundation
 
 protocol WeatherViewModelProtocol {
     func fetchCurrentWeather(completion: @escaping() -> Void)
-    func fetchHourlyAndDailyWeather(completion: @escaping() -> Void)
+    func fetchHourlyWeather(completion: @escaping() -> Void)
+    func fetchDailyWeather(completion: @escaping() -> Void)
     //Data
-    var currentWeatherCellViewModel: CurrentWeatherCellViewModelType? { get }
-    var dailyWeatherData: [DailyWeatherModel]? { get }
-    var hourlyWeatherData: [HourlyWeatherModel]? { get }
+    var currentWeatherCellViewModel: CurrentWeatherCellViewModelProtocol? { get }
+    var dailyWeatherCellViewModel: [DailyWeatherCellViewModelProtocol]? { get }
+    var hourlyWeatherCellViewModel: [HourlyWeatherCellViewModelProtocol]? { get }
 }

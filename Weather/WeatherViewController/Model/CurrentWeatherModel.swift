@@ -23,6 +23,7 @@ struct CurrentWeatherModel {
         return String(format: "%.0fº", maxTemp)
     }
     var conditions: String
+    var weatherID: Int
     
     var location: String
     var latitude: CLLocationDegrees
@@ -36,6 +37,7 @@ struct CurrentWeatherModel {
         conditions = currentWeatherData.weather[0].description
         latitude = CLLocationDegrees(currentWeatherData.coord.lat)
         longitude = CLLocationDegrees(currentWeatherData.coord.lon)
+        weatherID = currentWeatherData.weather[0].id
         print("lat: \(latitude), lon: \(longitude)")
     }
 }

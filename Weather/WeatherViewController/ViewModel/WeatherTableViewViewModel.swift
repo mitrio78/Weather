@@ -10,40 +10,60 @@ import CoreLocation
 
 class WeatherTableViewViewModel: WeatherViewModelProtocol {
     
-    var currentWeatherCellViewModel: CurrentWeatherCellViewModelType?
-    var networkManager = NetworkManager()
+    private var networkServiceForCurrentWeather: NetworkService<CurrentWeatherData> = NetworkService()
+    private var networkServiceForDailyWeather: NetworkService<DailyWeatherData> = NetworkService()
+    private var networkServiceForHourlyWeather: NetworkService<HourlyWeatherData> = NetworkService()
     
-    //TODO: city comes from outside - searchVC
-    private var city: String = "Leningrad"
+    //TODO: location comes from outside - searchVC
+    var lat: Double = 55.7558
+    var lon: Double = 37.6176
     
-    var hourlyWeatherCellViewModel: HourlyWeatherCellViewModelType?
-    var hourlyWeatherData: [HourlyWeatherModel]?
-    var dailyWeatherData: [DailyWeatherModel]?
+    //View Models
+    var currentWeatherCellViewModel: CurrentWeatherCellViewModelProtocol?
+    var hourlyWeatherCellViewModel: [HourlyWeatherCellViewModelProtocol]?
+    var dailyWeatherCellViewModel: [DailyWeatherCellViewModelProtocol]?
     
-    func fetchCurrentWeather(completion: @escaping() -> Void) {
-        networkManager.fetchWeather(forRequestType: .cityName(city: city))
-        networkManager.onCompletion = { [weak self] (currentWeather) in
-            self?.currentWeatherCellViewModel = CurrentWeatherCellViewModel(curentWeather: currentWeather)
-            self?.fetchHourlyAndDailyWeather {
+    func fetchCurrentWeather(completion: @escaping () -> Void) {
+        networkServiceForCurrentWeather.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: CLLocationDegrees(Float(lat)), longitude: CLLocationDegrees(Float(lon)))) { [unowned self] (currentWeatherData) in
+            guard let currentWeatherData = currentWeatherData else {
+                return
+            }
+            let cModel = CurrentWeatherModel(currentWeatherData: currentWeatherData)
+            self.currentWeatherCellViewModel = CurrentWeatherCellViewModel(curentWeather: cModel!)
+            self.fetchHourlyWeather {
+                completion()
+            }
+            self.fetchDailyWeather {
                 completion()
             }
         }
     }
-    
-    func fetchHourlyAndDailyWeather(completion: @escaping() -> Void) {
-        guard let currentWeatherCellViewModel = currentWeatherCellViewModel else {
-            print("no lat & lon")
-            return
-        }
-        networkManager.fetchWeather(forRequestType: .coordinates(latitude: currentWeatherCellViewModel.latitude, longitude: currentWeatherCellViewModel.longitude))
-        networkManager.onHCompletion = { [weak self] (hourlyWeather) in
-            self?.hourlyWeatherData = hourlyWeather
-            
-        }
-        networkManager.onDCompletion = { [weak self] (dailyweather) in
-            self?.dailyWeatherData = dailyweather
+    func fetchHourlyWeather(completion: @escaping () -> Void) {
+        networkServiceForHourlyWeather.fetchWeather(request: .coordinatesForOneCallApi(latitude: CLLocationDegrees(Float(lat)), longitude: CLLocationDegrees(Float(lon))), completion: { [unowned self] (hourlyWeatherData) in
+            self.hourlyWeatherCellViewModel = []
+            var model: [HourlyWeatherModel] = []
+            guard let hModel = hourlyWeatherData?.hourly else { return }
+            for hModelItem in hModel {
+                model.append(HourlyWeatherModel(data: hModelItem)!)
+            }
+            for weatherItem in model {
+                self.hourlyWeatherCellViewModel?.append(HourlyWeatherCellViewModel(hourlyModel: weatherItem))
+            }
             completion()
-        }
-        completion()
+        })
+    }
+    func fetchDailyWeather(completion: @escaping () -> Void) {
+        networkServiceForDailyWeather.fetchWeather(request: .coordinatesForOneCallApi(latitude: CLLocationDegrees(Float(lat)), longitude: CLLocationDegrees(Float(lon))), completion: { [unowned self] (dailyWeatherData) in
+            self.dailyWeatherCellViewModel = []
+            var model: [DailyWeatherModel] = []
+            guard let dModel = dailyWeatherData?.daily else { return }
+            for dModelItem in dModel {
+                model.append(DailyWeatherModel(data: dModelItem)!)
+            }
+            for weatherItem in model {
+                self.dailyWeatherCellViewModel?.append(DailyWeatherCellViewModel(model: weatherItem))
+            }
+            completion()
+        })
     }
 }

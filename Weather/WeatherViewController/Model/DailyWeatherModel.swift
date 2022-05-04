@@ -27,36 +27,12 @@ struct DailyWeatherModel {
         return "\(String(dailyHumidity))%"
     }
     var weatherCode: Int
-    var weatherIcon: UIImage {
-        switch weatherCode {
-        case 200...232:
-            return UIImage(systemName: "cloud.bolt.rain.fill")!
-        case 300...321, 520...531:
-            return UIImage(systemName: "cloud.rain")!
-        case 500...504:
-            return UIImage(systemName: "cloud.sun.rain.fill")!
-        case 511, 600...622:
-            return UIImage(systemName: "snowflake")!
-        case 701...781:
-            return UIImage(systemName: "cloud.fog.fill")!
-        case 800:
-            return UIImage(systemName: "sun.max.fill")!
-        case 801:
-            return UIImage(systemName: "cloud.sun.fill")!
-        case 802:
-            return UIImage(systemName: "cloud.fill")!
-        case 803, 804:
-            return UIImage(systemName: "smoke.fill")!
-        default:
-            return UIImage(systemName: "exclamationmark.icloud.fill")!
-        }
-    }
 
-    init?(date: Date, dailyMaxTemp: Double, dailyMinTemp: Double, dailyHumidity: Int, weatherCode: Int) {
-        self.date = date
-        self.dailyMinTemp = dailyMinTemp
-        self.dailyMaxTemp = dailyMaxTemp
-        self.weatherCode = weatherCode
-        self.dailyHumidity = dailyHumidity
+    init?(data: Daily) {
+        self.date = data.dt
+        self.dailyMinTemp = data.temp.min
+        self.dailyMaxTemp = data.temp.max
+        self.weatherCode = data.weather[0].id
+        self.dailyHumidity = data.humidity
     }
 }

@@ -19,11 +19,11 @@ class DailyForecastCell: UITableViewCell {
         super.awakeFromNib()
     }
     
-    func setupDailyCell(for indexPath: IndexPath, with viewModel: [DailyWeatherModel]) {
-        dailyImageView.image = viewModel[indexPath.row].weatherIcon
-        dailyHumidityLabel.text = viewModel[indexPath.row].dHumidityString
-        dailyMaxTempLabel.text = viewModel[indexPath.row].dMaxTempString
-        dailyMinTempLabel.text = viewModel[indexPath.row].dMinTempString
-        dayLabel.text = viewModel[indexPath.row].dateStrind
+    func setupDailyCell(for indexPath: IndexPath, with viewModel: [DailyWeatherCellViewModelProtocol]) {
+        dailyImageView.image = WeatherIcons.getWeatherIcon(for: viewModel[indexPath.row].dailyWeatherId) 
+        dailyHumidityLabel.text = viewModel[indexPath.row].dailyHumidity
+        dailyMaxTempLabel.text = viewModel[indexPath.row].dailyMaxTemp
+        dailyMinTempLabel.text = viewModel[indexPath.row].dailyMinTemp
+        dayLabel.text = viewModel[indexPath.row].date
     }
 }

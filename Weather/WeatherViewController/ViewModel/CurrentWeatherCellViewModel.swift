@@ -8,7 +8,7 @@
 import Foundation
 import CoreLocation
 
-class CurrentWeatherCellViewModel: CurrentWeatherCellViewModelType {
+class CurrentWeatherCellViewModel: CurrentWeatherCellViewModelProtocol {
     
     var currentWeather: CurrentWeatherModel
     

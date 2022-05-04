@@ -8,7 +8,7 @@
 import Foundation
 import CoreLocation
 
-protocol CurrentWeatherCellViewModelType: AnyObject {
+protocol CurrentWeatherCellViewModelProtocol: AnyObject {
     var cityName: String { get }
     var currentTemp: String { get }
     var currentConditions: String { get }

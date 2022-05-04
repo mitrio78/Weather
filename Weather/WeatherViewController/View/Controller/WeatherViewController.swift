@@ -15,7 +15,7 @@ class WeatherViewController: UITableViewController {
         super.viewDidLoad()
         registerCells()
         viewModel = WeatherTableViewViewModel()
-
+        navigationController?.isNavigationBarHidden = true
         viewModel?.fetchCurrentWeather { [weak self] in
             DispatchQueue.main.async {
                 self?.tableView.reloadData()
@@ -39,11 +39,14 @@ class WeatherViewController: UITableViewController {
             return currentWeatherCell
         case  .hourlyForecast:
             let hourlyWeatherCell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! HourlyForecastCell
-            hourlyWeatherCell.configure(viewModel.hourlyWeatherData)
+            hourlyWeatherCell.configure(viewModel.hourlyWeatherCellViewModel)
             return hourlyWeatherCell
         case .dailyForecast:
             let dailyForecastCell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! DailyForecastCell
-            guard let dailyWeather = viewModel.dailyWeatherData else { return dailyForecastCell}
+            guard let dailyWeather = viewModel.dailyWeatherCellViewModel else {
+                print("No data in [DailyProtocol]")
+                return dailyForecastCell
+            }
             dailyForecastCell.setupDailyCell(for: indexPath, with: dailyWeather)
             return dailyForecastCell
         }
@@ -56,8 +59,6 @@ class WeatherViewController: UITableViewController {
         tableView.register(nibHW, forCellReuseIdentifier: "HourlyForecastCell")
         tableView.register(nibDW, forCellReuseIdentifier: "DailyForecastCell")
     }
-    //TODO: do it in ViewModel
-
 }
 // MARK: - TableView DataSource
 
@@ -69,7 +70,7 @@ extension WeatherViewController {
         case .currentWeather, .hourlyForecast:
             return 1
         case .dailyForecast:
-            return viewModel?.dailyWeatherData?.count ?? 0
+            return viewModel?.dailyWeatherCellViewModel?.count ?? 0
         }
     }
     
@@ -89,13 +90,13 @@ extension WeatherViewController {
         case .currentWeather, .hourlyForecast:
             return section.displayText
         case .dailyForecast:
-            guard let numberOfRows = viewModel?.dailyWeatherData?.count else { return "" }
+            guard let numberOfRows = viewModel?.dailyWeatherCellViewModel?.count else { return "" }
             return "Прогноз на \(numberOfRows) дней"
         }
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let section = WeatherTableViewState.WeatherSection(rawValue: indexPath.section) else { return 0}
+        guard let section = WeatherTableViewState.WeatherSection(rawValue: indexPath.section) else { return 0 }
         switch section {
         case .currentWeather:
             return 280
