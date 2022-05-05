@@ -45,6 +45,8 @@
 		5566AB1A2822F34600D5C47D /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5566AB182822F34600D5C47D /* Model.xcdatamodeld */; };
 		5566AB1F2823D03500D5C47D /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5566AB1E2823D03500D5C47D /* Location.swift */; };
 		5566AB212823DF8200D5C47D /* StorageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5566AB202823DF8200D5C47D /* StorageProvider.swift */; };
+		5566AB242824735000D5C47D /* SearchTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5566AB232824735000D5C47D /* SearchTableViewCellViewModel.swift */; };
+		5566AB262824736800D5C47D /* TableViewCellViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5566AB252824736800D5C47D /* TableViewCellViewModelProtocol.swift */; };
 		55747C8728084A5E0051A42D /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55747C8628084A5E0051A42D /* TabBarController.swift */; };
 		55747C8928084D3D0051A42D /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55747C8828084D3D0051A42D /* SearchViewController.swift */; };
 		55747C8B28084EFE0051A42D /* WeatherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55747C8A28084EFE0051A42D /* WeatherViewController.swift */; };
@@ -93,6 +95,8 @@
 		5566AB192822F34600D5C47D /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		5566AB1E2823D03500D5C47D /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		5566AB202823DF8200D5C47D /* StorageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageProvider.swift; sourceTree = "<group>"; };
+		5566AB232824735000D5C47D /* SearchTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTableViewCellViewModel.swift; sourceTree = "<group>"; };
+		5566AB252824736800D5C47D /* TableViewCellViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCellViewModelProtocol.swift; sourceTree = "<group>"; };
 		55747C8628084A5E0051A42D /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		55747C8828084D3D0051A42D /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		55747C8A28084EFE0051A42D /* WeatherViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherViewController.swift; sourceTree = "<group>"; };
@@ -117,7 +121,7 @@
 		5525262A280C7ED900B482E0 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				5566AB1B28230C6300D5C47D /* Helper */,
+				5566AB1B28230C6300D5C47D /* Settings */,
 				55252631280C7F7400B482E0 /* Controller */,
 				55252648280D855500B482E0 /* Cells */,
 			);
@@ -237,6 +241,7 @@
 			isa = PBXGroup;
 			children = (
 				553E1B4828219E1100E113F6 /* SearchTableViewViewModel.swift */,
+				5566AB232824735000D5C47D /* SearchTableViewCellViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -245,6 +250,7 @@
 			isa = PBXGroup;
 			children = (
 				553E1B4A28219E3700E113F6 /* SearchTableViewViewModelProtocol.swift */,
+				5566AB252824736800D5C47D /* TableViewCellViewModelProtocol.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -317,12 +323,12 @@
 			path = Weather;
 			sourceTree = "<group>";
 		};
-		5566AB1B28230C6300D5C47D /* Helper */ = {
+		5566AB1B28230C6300D5C47D /* Settings */ = {
 			isa = PBXGroup;
 			children = (
 				55252628280C6E0F00B482E0 /* WeatherTableViewState.swift */,
 			);
-			path = Helper;
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		5566AB222823DF9E00D5C47D /* CoreData */ = {
@@ -483,6 +489,7 @@
 				5542FF66281860E700E4BDDC /* CurrentWeatherCellViewModelProtocol.swift in Sources */,
 				55747C8928084D3D0051A42D /* SearchViewController.swift in Sources */,
 				553E1B372821227100E113F6 /* Color.swift in Sources */,
+				5566AB262824736800D5C47D /* TableViewCellViewModelProtocol.swift in Sources */,
 				553E1B432821792500E113F6 /* NetworkSettings.swift in Sources */,
 				55252650280D934400B482E0 /* HourlyWeatherModel.swift in Sources */,
 				5542FF6A2818612D00E4BDDC /* DailyWeatherCellViewModelProtocol.swift in Sources */,
@@ -500,6 +507,7 @@
 				5566AB1F2823D03500D5C47D /* Location.swift in Sources */,
 				5542FF612818232C00E4BDDC /* WeatherViewModelProtocol.swift in Sources */,
 				555441762822914D00F4498B /* SearchTableViewCell.swift in Sources */,
+				5566AB242824735000D5C47D /* SearchTableViewCellViewModel.swift in Sources */,
 				55DF3C022805E788005C6955 /* CurrentWeatherData.swift in Sources */,
 				553E1B4B28219E3700E113F6 /* SearchTableViewViewModelProtocol.swift in Sources */,
 				553E1B4128216C3900E113F6 /* NetworkService.swift in Sources */,

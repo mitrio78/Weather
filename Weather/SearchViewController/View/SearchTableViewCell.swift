@@ -8,11 +8,8 @@
 import UIKit
 
 class SearchTableViewCell: UITableViewCell {
-    
     static let searchCellId = "SearchCell"
-    //TODO: Cell ViewModel to store data
-    var latitude: Double?
-    var longitude: Double?
+    var viewModel: SearchTableViewCellViewModelProtocol?
     
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var tempLabel: UILabel!
@@ -20,5 +17,11 @@ class SearchTableViewCell: UITableViewCell {
     
     override class func awakeFromNib() {
         super.awakeFromNib()
+    }
+    func configureCell(with model: SearchDataModel) {
+        viewModel = SearchTableViewCellViewModel(searchWeather: model)
+        cityLabel.text = viewModel?.cityName
+        tempLabel.text = viewModel?.temp
+        weatherIcon.image = WeatherIcons.getWeatherIcon(for: viewModel!.weatherId)
     }
 }

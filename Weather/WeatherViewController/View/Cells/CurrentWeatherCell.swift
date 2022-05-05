@@ -9,6 +9,8 @@ import UIKit
 
 class CurrentWeatherCell: UITableViewCell {
             
+    
+    
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var currentConditionsLabel: UILabel!
     @IBOutlet weak var currentTempLabel: UILabel!

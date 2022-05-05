@@ -19,26 +19,25 @@ class WeatherViewController: UITableViewController {
         viewModel = WeatherTableViewViewModel()
         navigationController?.isNavigationBarHidden = true
         viewModel?.coordinates = LocationCoordinates(latitude: 55.7558, longitude: 37.6176)
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print(#function)
         updateWeather()
     }
     
     @objc func getNewCoordinates(_ notification: NSNotification) {
-        let lat = (notification.userInfo!["lat"] as? Double)!
-        let lon = (notification.userInfo!["lon"] as? Double)!
-        viewModel?.coordinates = LocationCoordinates(latitude: CLLocationDegrees(Float(lat)), longitude: CLLocationDegrees(Float(lon)))
-        updateWeather()
+        if let incomeCoordinates = notification.userInfo {
+            let lat = incomeCoordinates["lat"] as! Double
+            let lon = incomeCoordinates["lon"] as! Double
+            viewModel?.coordinates = LocationCoordinates(latitude: CLLocationDegrees(Float(lat)), longitude: CLLocationDegrees(Float(lon)))
+        }
     }
     
     private func updateWeather() {
-        viewModel?.fetchCurrentWeather { [weak self] in
+        viewModel?.fetchCurrentWeather { [unowned self] in
             DispatchQueue.main.async {
-                self?.tableView.reloadData()
+                self.tableView.reloadData()
             }
         }
     }

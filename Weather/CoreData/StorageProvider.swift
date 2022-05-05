@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-class StorageProvider {
+struct StorageProvider {
     let persistantContainer: NSPersistentContainer
     static let shared = StorageProvider()
     

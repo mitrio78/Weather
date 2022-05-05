@@ -11,32 +11,37 @@ import CoreLocation
 class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
     
     var savedCoordinates: [Coordinates]?
-        
-    var savedCities: [SearchDataModel]? = []
+    var savedCities: [SearchDataModel]?
     var currentLocation: LocationCoordinatesProtocol?
     var searchResult: SearchDataModel?
+    var currentLocationResult: SearchDataModel?
     var networkService = NetworkService<CurrentWeatherData>()
     
     func fetchSearchData(searchText: String, completion: @escaping () -> ()) {
-        self.networkService.fetchWeather(request: .cityName(city: searchText)) { [weak self] (result) in
+        self.networkService.fetchWeather(request: .cityName(city: searchText)) { [unowned self] (result) in
             guard let result = result else {
+                searchResult = nil
                 completion()
                 return
             }
-            self?.searchResult = SearchDataModel(currentWeatherData: result)
+            self.searchResult = SearchDataModel(currentWeatherData: result)
             completion()
         }
     }
     
     func fetchLocationData(location: LocationCoordinates, completion: @escaping (SearchDataModel) -> ()) {
         guard let currentLocation = currentLocation else {
+            print("no location")
             return
         }
-        self.networkService.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: currentLocation.latitude, longitude: currentLocation.longitude)) { (data) in
-            guard let result = SearchDataModel(currentWeatherData: data!) else {
+        self.networkService.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: currentLocation.latitude, longitude: currentLocation.longitude)) { [unowned self] (data) in
+            guard let data = data else {
+                print("no data")
                 return
             }
-            completion(result)
+            print("LOCATIONAMA!")
+            self.currentLocationResult = SearchDataModel(currentWeatherData: data)
+            completion(currentLocationResult!)
         }
     }
     

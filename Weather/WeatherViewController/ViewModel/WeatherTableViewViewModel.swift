@@ -16,7 +16,7 @@ class WeatherTableViewViewModel: WeatherViewModelProtocol {
     private var networkServiceForDailyWeather: NetworkService<DailyWeatherData> = NetworkService()
     private var networkServiceForHourlyWeather: NetworkService<HourlyWeatherData> = NetworkService()
     
-    //View Models
+    //Cell View Models
     var currentWeatherCellViewModel: CurrentWeatherCellViewModelProtocol?
     var hourlyWeatherCellViewModel: [HourlyWeatherCellViewModelProtocol]?
     var dailyWeatherCellViewModel: [DailyWeatherCellViewModelProtocol]?
