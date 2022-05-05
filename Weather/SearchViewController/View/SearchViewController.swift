@@ -89,7 +89,7 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
                 defaultCell.textLabel?.numberOfLines = 2
                 return defaultCell
             }
-            configureCell(cell: cell, with: searchResult, buttonHidden: true)
+            configureCell(cell: cell, with: searchResult)
         case 1:
             guard let currentLocation = viewModel?.currentLocation else {
                 let defaultCell = UITableViewCell()
@@ -99,21 +99,20 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
             }
             DispatchQueue.main.async { [unowned self] in
                 self.viewModel?.fetchLocationData(location: currentLocation as! LocationCoordinates, completion: { [unowned self] (result) in
-                    self.configureCell(cell: cell, with: result, buttonHidden: true)
+                    self.configureCell(cell: cell, with: result)
                 })
             }
         case 2:
             guard let city = viewModel?.savedCities?[indexPath.row] else {
                 return cell
             }
-            configureCell(cell: cell, with: city, buttonHidden: true)
+            configureCell(cell: cell, with: city)
         default: break
         }
         return cell
     }
     
-    private func configureCell(cell: SearchTableViewCell, with model: SearchDataModel, buttonHidden checkBox: Bool) {
-        cell.addButton.isHidden = checkBox
+    private func configureCell(cell: SearchTableViewCell, with model: SearchDataModel) {
         cell.cityLabel.text = model.cityName
         cell.tempLabel.text = model.tempString
         cell.weatherIcon.image = WeatherIcons.getWeatherIcon(for: model.weatherCode)
@@ -126,11 +125,12 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
         let cell = tableView.cellForRow(at: indexPath)
         if cell?.reuseIdentifier == SearchTableViewCell.searchCellId {
             guard let cell = cell as? SearchTableViewCell,
-                    let lat = cell.latitude,
-                  let lon = cell.longitude else {
-                return
-            }
-            viewModel?.passCoordinates.value = LocationCoordinates(latitude: lat, longitude: lon)
+                  let lat = cell.latitude,
+                  let lon = cell.longitude else { return }
+            var coords = [String: Double]()
+            coords["lat"] = lat
+            coords["lon"] = lon
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "changeCoordinates"), object: nil, userInfo: coords)
             tabVC.selectedIndex = 0
         }
     }
@@ -178,8 +178,6 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
         default:
             return nil
         }
-        
-        
     }
 }
 //MARK: Search Bar Delegate
@@ -201,3 +199,4 @@ extension SearchViewController {
         tableView.reloadData()
     }
 }
+

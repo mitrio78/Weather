@@ -17,7 +17,6 @@ protocol SearchTableViewViewModelProtocol {
     var searchResult: SearchDataModel? { get set }
     var currentLocation: LocationCoordinatesProtocol? { get set }
     var savedCities: [SearchDataModel]? { get set }
-    var passCoordinates: Box<LocationCoordinatesProtocol?> { get }
     var savedCoordinates: [Coordinates]? { get set }
     
     var networkService: NetworkService<CurrentWeatherData> { get set }

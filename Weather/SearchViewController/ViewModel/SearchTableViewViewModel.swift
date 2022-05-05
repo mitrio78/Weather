@@ -11,9 +11,7 @@ import CoreLocation
 class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
     
     var savedCoordinates: [Coordinates]?
-    
-    var passCoordinates: Box<LocationCoordinatesProtocol?> = Box(nil)
-    
+        
     var savedCities: [SearchDataModel]? = []
     var currentLocation: LocationCoordinatesProtocol?
     var searchResult: SearchDataModel?

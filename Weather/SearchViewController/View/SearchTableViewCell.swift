@@ -14,16 +14,11 @@ class SearchTableViewCell: UITableViewCell {
     var latitude: Double?
     var longitude: Double?
     
-    @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var tempLabel: UILabel!
     @IBOutlet weak var weatherIcon: UIImageView!
     
     override class func awakeFromNib() {
         super.awakeFromNib()
-    }
-    //save to Core Data (doesn't work)
-    @IBAction func addCity(_ sender: Any) {
-
     }
 }

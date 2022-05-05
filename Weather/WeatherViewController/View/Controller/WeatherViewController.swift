@@ -14,37 +14,34 @@ class WeatherViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(self.getNewCoordinates(_:)), name: Notification.Name(rawValue: "changeCoordinates"), object: nil)
         registerCells()
         viewModel = WeatherTableViewViewModel()
         navigationController?.isNavigationBarHidden = true
         viewModel?.coordinates = LocationCoordinates(latitude: 55.7558, longitude: 37.6176)
-//        searchViewModel?.passCoordinates.bind { [unowned self] (value) in
-//            print("PRINT")
-//            guard let coords = value else {
-//                print("RETURN")
-//                return
-//            }
-//            self.viewModel?.coordinates = coords
-//            self.viewModel?.fetchCurrentWeather { [weak self] in
-//                DispatchQueue.main.async {
-//                    self?.tableView.reloadData()
-//                }
-//            }
-//            print("Pass: \(viewModel?.coordinates?.latitude ?? 0)")
-//            self.tableView.reloadData()
-//        }
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print(#function)
+        updateWeather()
+    }
+    
+    @objc func getNewCoordinates(_ notification: NSNotification) {
+        let lat = (notification.userInfo!["lat"] as? Double)!
+        let lon = (notification.userInfo!["lon"] as? Double)!
+        viewModel?.coordinates = LocationCoordinates(latitude: CLLocationDegrees(Float(lat)), longitude: CLLocationDegrees(Float(lon)))
+        updateWeather()
+    }
+    
+    private func updateWeather() {
         viewModel?.fetchCurrentWeather { [weak self] in
             DispatchQueue.main.async {
                 self?.tableView.reloadData()
             }
         }
     }
-    
     private func сonfigureCellInSections(for indexPath: IndexPath, from tableView: UITableView) -> UITableViewCell {
         guard let section = WeatherTableViewState.WeatherSection(rawValue: indexPath.section) else {
             fatalError("Section index out of range")
@@ -133,4 +130,4 @@ extension WeatherViewController {
         false
     }
 }
-    
+
