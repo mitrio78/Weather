@@ -10,13 +10,11 @@ import CoreLocation
 
 class WeatherTableViewViewModel: WeatherViewModelProtocol {
     
+    var coordinates: LocationCoordinatesProtocol?
+    
     private var networkServiceForCurrentWeather: NetworkService<CurrentWeatherData> = NetworkService()
     private var networkServiceForDailyWeather: NetworkService<DailyWeatherData> = NetworkService()
     private var networkServiceForHourlyWeather: NetworkService<HourlyWeatherData> = NetworkService()
-    
-    //TODO: location comes from outside - searchVC
-    var lat: Double = 55.7558
-    var lon: Double = 37.6176
     
     //View Models
     var currentWeatherCellViewModel: CurrentWeatherCellViewModelProtocol?
@@ -24,7 +22,10 @@ class WeatherTableViewViewModel: WeatherViewModelProtocol {
     var dailyWeatherCellViewModel: [DailyWeatherCellViewModelProtocol]?
     
     func fetchCurrentWeather(completion: @escaping () -> Void) {
-        networkServiceForCurrentWeather.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: CLLocationDegrees(Float(lat)), longitude: CLLocationDegrees(Float(lon)))) { [unowned self] (currentWeatherData) in
+        guard let coordinates = coordinates else {
+            return
+        }
+        networkServiceForCurrentWeather.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: coordinates.latitude, longitude: coordinates.longitude)) { [unowned self] (currentWeatherData) in
             guard let currentWeatherData = currentWeatherData else {
                 return
             }
@@ -39,7 +40,10 @@ class WeatherTableViewViewModel: WeatherViewModelProtocol {
         }
     }
     func fetchHourlyWeather(completion: @escaping () -> Void) {
-        networkServiceForHourlyWeather.fetchWeather(request: .coordinatesForOneCallApi(latitude: CLLocationDegrees(Float(lat)), longitude: CLLocationDegrees(Float(lon))), completion: { [unowned self] (hourlyWeatherData) in
+        guard let coordinates = coordinates else {
+            return
+        }
+        networkServiceForHourlyWeather.fetchWeather(request: .coordinatesForOneCallApi(latitude: coordinates.latitude, longitude: coordinates.longitude), completion: { [unowned self] (hourlyWeatherData) in
             self.hourlyWeatherCellViewModel = []
             var model: [HourlyWeatherModel] = []
             guard let hModel = hourlyWeatherData?.hourly else { return }
@@ -53,7 +57,10 @@ class WeatherTableViewViewModel: WeatherViewModelProtocol {
         })
     }
     func fetchDailyWeather(completion: @escaping () -> Void) {
-        networkServiceForDailyWeather.fetchWeather(request: .coordinatesForOneCallApi(latitude: CLLocationDegrees(Float(lat)), longitude: CLLocationDegrees(Float(lon))), completion: { [unowned self] (dailyWeatherData) in
+        guard let coordinates = coordinates else {
+            return
+        }
+        networkServiceForDailyWeather.fetchWeather(request: .coordinatesForOneCallApi(latitude: coordinates.latitude, longitude: coordinates.longitude), completion: { [unowned self] (dailyWeatherData) in
             self.dailyWeatherCellViewModel = []
             var model: [DailyWeatherModel] = []
             guard let dModel = dailyWeatherData?.daily else { return }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 class WeatherViewController: UITableViewController {
     
@@ -16,6 +17,27 @@ class WeatherViewController: UITableViewController {
         registerCells()
         viewModel = WeatherTableViewViewModel()
         navigationController?.isNavigationBarHidden = true
+        viewModel?.coordinates = LocationCoordinates(latitude: 55.7558, longitude: 37.6176)
+//        searchViewModel?.passCoordinates.bind { [unowned self] (value) in
+//            print("PRINT")
+//            guard let coords = value else {
+//                print("RETURN")
+//                return
+//            }
+//            self.viewModel?.coordinates = coords
+//            self.viewModel?.fetchCurrentWeather { [weak self] in
+//                DispatchQueue.main.async {
+//                    self?.tableView.reloadData()
+//                }
+//            }
+//            print("Pass: \(viewModel?.coordinates?.latitude ?? 0)")
+//            self.tableView.reloadData()
+//        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print(#function)
         viewModel?.fetchCurrentWeather { [weak self] in
             DispatchQueue.main.async {
                 self?.tableView.reloadData()

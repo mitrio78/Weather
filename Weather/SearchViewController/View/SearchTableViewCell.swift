@@ -10,6 +10,7 @@ import UIKit
 class SearchTableViewCell: UITableViewCell {
     
     static let searchCellId = "SearchCell"
+    //TODO: Cell ViewModel to store data
     var latitude: Double?
     var longitude: Double?
     
@@ -20,10 +21,9 @@ class SearchTableViewCell: UITableViewCell {
     
     override class func awakeFromNib() {
         super.awakeFromNib()
-        
     }
-    
+    //save to Core Data (doesn't work)
     @IBAction func addCity(_ sender: Any) {
+
     }
-    
 }

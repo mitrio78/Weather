@@ -6,13 +6,7 @@
 //
 
 import UIKit
-import Alamofire
 import CoreLocation
-
-struct LocationCoordinates: LocationCoordinatesProtocol {
-    var latitude: CLLocationDegrees
-    var longitude: CLLocationDegrees
-}
 
 class SearchViewController: UITableViewController, CLLocationManagerDelegate {
     
@@ -23,6 +17,7 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print(#function)
         self.locationManager.requestWhenInUseAuthorization()
         if CLLocationManager.locationServicesEnabled() {
             locationManager.delegate = self
@@ -31,10 +26,18 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
         }
         setupSearchBar()
         viewModel = SearchTableViewViewModel()
-        viewModel?.fetchSavedCities()
-
+        DispatchQueue.main.async { [unowned self] in
+            self.viewModel?.fetchSavedCities(completion: {
+                tableView.reloadData()
+            })
+        }
         let nib = UINib(nibName: "SearchTableViewCell", bundle: nil)
         tableView.register(nib, forCellReuseIdentifier: SearchTableViewCell.searchCellId)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
     }
     
     private func setupSearchBar() {
@@ -82,10 +85,11 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
         case 0:
             guard let searchResult = viewModel?.searchResult else {
                 let defaultCell = UITableViewCell()
-                defaultCell.textLabel?.text = "Введите условия поиска..."
+                defaultCell.textLabel?.text = "Введите условия поиска на английском языке"
+                defaultCell.textLabel?.numberOfLines = 2
                 return defaultCell
             }
-            configureCell(cell: cell, with: searchResult, buttonHidden: false)
+            configureCell(cell: cell, with: searchResult, buttonHidden: true)
         case 1:
             guard let currentLocation = viewModel?.currentLocation else {
                 let defaultCell = UITableViewCell()
@@ -93,9 +97,11 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
                 defaultCell.textLabel?.text = "У приложения нет данных о вашем местоположении"
                 return defaultCell
             }
-            viewModel?.fetchLocationData(location: currentLocation as! LocationCoordinates, completion: { [unowned self] (result) in
-                self.configureCell(cell: cell, with: result, buttonHidden: false)
-            })
+            DispatchQueue.main.async { [unowned self] in
+                self.viewModel?.fetchLocationData(location: currentLocation as! LocationCoordinates, completion: { [unowned self] (result) in
+                    self.configureCell(cell: cell, with: result, buttonHidden: true)
+                })
+            }
         case 2:
             guard let city = viewModel?.savedCities?[indexPath.row] else {
                 return cell
@@ -114,7 +120,7 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
         cell.latitude = model.latitude
         cell.longitude = model.longitude
     }
-    
+    //TODO: Pass coordinates to WeatherVC
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let tabVC = self.tabBarController else { return }
         let cell = tableView.cellForRow(at: indexPath)
@@ -124,10 +130,56 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
                   let lon = cell.longitude else {
                 return
             }
-            print("\(lat) : \(lon)")
+            viewModel?.passCoordinates.value = LocationCoordinates(latitude: lat, longitude: lon)
             tabVC.selectedIndex = 0
         }
-        //TODO: pass data to WVC
+    }
+    //MARK: - Swipe Actions
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        switch indexPath.section {
+        case 0, 1:
+            return nil
+        case 2:
+            let deleteActionTitle = NSLocalizedString("Delete", comment: "Delete action title")
+            let deleteAction = UIContextualAction(style: .destructive, title: deleteActionTitle) { [unowned self] _, _, completion in
+                viewModel?.deleteCoordinates(from: indexPath) {
+                    tableView.reloadData()
+                }
+                completion(false)
+            }
+            return UISwipeActionsConfiguration(actions: [deleteAction])
+        default:
+            return nil
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        switch indexPath.section {
+        case 0, 1:
+            let saveActionTitle = NSLocalizedString("Save", comment: "Save action title")
+            let saveAction = UIContextualAction(style: .normal, title: saveActionTitle) { [unowned self] _, _, completion in
+                let cell = tableView.cellForRow(at: indexPath)
+                if cell?.reuseIdentifier == SearchTableViewCell.searchCellId {
+                    guard let cell = cell as? SearchTableViewCell,
+                          let lat = cell.latitude,
+                          let lon = cell.longitude else { return }
+                    print("\(lat) \(lon)")
+                    viewModel?.saveCoordinates(latitude: lat , longitude: lon, completion: {
+                        tableView.reloadData()
+                    })
+                }
+                completion(false)
+            }
+            saveAction.backgroundColor = .systemGreen
+            return UISwipeActionsConfiguration(actions: [saveAction])
+        case 2:
+            return nil
+        default:
+            return nil
+        }
+        
+        
     }
 }
 //MARK: Search Bar Delegate
@@ -135,7 +187,7 @@ extension SearchViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [unowned self] (_) in
-            self.viewModel?.fetchSearchData(searchText: searchText, completion: {
+            self.viewModel?.fetchSearchData(searchText: searchText, completion: { [unowned self] in
                 self.tableView.reloadData()
             })
         })

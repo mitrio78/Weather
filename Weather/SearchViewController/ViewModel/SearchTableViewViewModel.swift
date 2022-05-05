@@ -10,13 +10,14 @@ import CoreLocation
 
 class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
     
-    var savedCities: [SearchDataModel]?
+    var savedCoordinates: [Coordinates]?
+    
+    var passCoordinates: Box<LocationCoordinatesProtocol?> = Box(nil)
+    
+    var savedCities: [SearchDataModel]? = []
     var currentLocation: LocationCoordinatesProtocol?
     var searchResult: SearchDataModel?
     var networkService = NetworkService<CurrentWeatherData>()
-
-    var latitude: Double?
-    var longitude: Double?
     
     func fetchSearchData(searchText: String, completion: @escaping () -> ()) {
         self.networkService.fetchWeather(request: .cityName(city: searchText)) { [weak self] (result) in
@@ -41,10 +42,37 @@ class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
         }
     }
     
-    func fetchSavedCities() {
-        savedCities = [
-            SearchDataModel(cityName: "City", temp: 4, weatherCode: 2, latitude: 53.033, longitude: -10.223)!
-        ]
+    func fetchSavedCities(completion: @escaping () -> Void) {
+        savedCoordinates = StorageProvider.shared.getAllCoordinates()
+        savedCities = []
+        guard let savedCoordinates = savedCoordinates else {
+            print("no saved coords in vm")
+            return
+        }
+        for savedCoordinate in savedCoordinates {
+            self.networkService.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: CLLocationDegrees(Float(savedCoordinate.latitude)) , longitude: CLLocationDegrees(Float(savedCoordinate.longitude)) )) { [unowned self] (data) in
+                guard let data = data else {
+                    print("Failed to fetch saved city data")
+                    return
+                }
+                self.savedCities!.append(SearchDataModel(currentWeatherData: data)!)
+                completion()
+            }
+        }
     }
     
+    func deleteCoordinates(from indexPath: IndexPath, completion: @escaping () -> Void) {
+        guard let coordinate = savedCoordinates?[indexPath.row] else { return }
+        StorageProvider.shared.deleteCoordinates(coordinate)
+        fetchSavedCities {
+            completion()
+        }
+    }
+    
+    func saveCoordinates(latitude: Double, longitude: Double, completion: @escaping () -> Void) {
+        StorageProvider.shared.saveCoordinates(lat: latitude, lon: longitude)
+        fetchSavedCities {
+            completion()
+        }
+    }
 }

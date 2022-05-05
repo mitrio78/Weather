@@ -8,6 +8,9 @@
 import Foundation
 
 protocol WeatherViewModelProtocol {
+    
+    var coordinates: LocationCoordinatesProtocol? { get set }
+    
     func fetchCurrentWeather(completion: @escaping() -> Void)
     func fetchHourlyWeather(completion: @escaping() -> Void)
     func fetchDailyWeather(completion: @escaping() -> Void)
