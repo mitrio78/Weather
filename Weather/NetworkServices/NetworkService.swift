@@ -9,13 +9,13 @@ import UIKit
 import Alamofire
 import CoreLocation
 
-protocol NetworkServiceProtocol {
+protocol NetworkServiceProtocol: AnyObject {
     associatedtype T: Codable
     associatedtype RequestType
     func fetchWeather(request: RequestType, completion: @escaping (T?) -> Void)
 }
 
-struct NetworkService<T:Codable>: NetworkServiceProtocol {
+class NetworkService<T:Codable>: NetworkServiceProtocol {
     
     enum RequestType {
         case cityName(city: String)

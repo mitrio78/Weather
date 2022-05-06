@@ -39,7 +39,7 @@ class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
                 print("no data")
                 return
             }
-            print("LOCATIONAMA!")
+            print("Location!")
             self.currentLocationResult = SearchDataModel(currentWeatherData: data)
             completion(currentLocationResult!)
         }
@@ -52,24 +52,24 @@ class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
             print("no saved coords in vm")
             return
         }
-        for savedCoordinate in savedCoordinates {
-            self.networkService.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: CLLocationDegrees(Float(savedCoordinate.latitude)) , longitude: CLLocationDegrees(Float(savedCoordinate.longitude)) )) { [unowned self] (data) in
-                guard let data = data else {
-                    print("Failed to fetch saved city data")
-                    return
+        
+        for coordinate in savedCoordinates {
+                self.networkService.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: CLLocationDegrees(Float(coordinate.latitude)), longitude: CLLocationDegrees(Float(coordinate.longitude)) )) { [unowned self] (data) in
+                    guard let data = data else {
+                        print("Failed to fetch saved city data")
+                        return
+                    }
+                    self.savedCities!.append(SearchDataModel(currentWeatherData: data)!)
+                    completion()
                 }
-                self.savedCities!.append(SearchDataModel(currentWeatherData: data)!)
-                completion()
             }
-        }
     }
     
-    func deleteCoordinates(from indexPath: IndexPath, completion: @escaping () -> Void) {
-        guard let coordinate = savedCoordinates?[indexPath.row] else { return }
+    func deleteCoordinates(_ coordinate: Coordinates, completion: @escaping () -> Void) {
         StorageProvider.shared.deleteCoordinates(coordinate)
         fetchSavedCities {
-            completion()
         }
+        completion()
     }
     
     func saveCoordinates(latitude: Double, longitude: Double, completion: @escaping () -> Void) {

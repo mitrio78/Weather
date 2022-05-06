@@ -26,11 +26,13 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
             locationManager.startUpdatingLocation()
         }
         setupSearchBar()
-        DispatchQueue.main.async { [unowned self] in
+        
             self.viewModel?.fetchSavedCities(completion: {
+                DispatchQueue.main.async { [unowned self] in
                 tableView.reloadData()
+                }
             })
-        }
+        
         let nib = UINib(nibName: "SearchTableViewCell", bundle: nil)
         tableView.register(nib, forCellReuseIdentifier: SearchTableViewCell.searchCellId)
     }
@@ -55,8 +57,7 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
         case 1:
             return 1
         case 2:
-            guard let count = viewModel?.savedCities?.count else { return 0 }
-            return count
+            return viewModel?.savedCities?.count ?? 0
         default:
             return 0
         }
@@ -81,9 +82,13 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.searchCellId, for: indexPath) as! SearchTableViewCell
+        
+        guard let viewModel = viewModel else {
+            return UITableViewCell()
+        }
         switch indexPath.section {
         case 0:
-            guard let searchResult = viewModel?.searchResult else {
+            guard let searchResult = viewModel.searchResult else {
                 let defaultCell = UITableViewCell()
                 defaultCell.textLabel?.text = "Введите условия поиска на английском языке"
                 defaultCell.textLabel?.numberOfLines = 2
@@ -91,7 +96,7 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
             }
             cell.configureCell(with: searchResult)
         case 1:
-            guard let currentLocation = viewModel?.currentLocation else {
+            guard let currentLocation = viewModel.currentLocation else {
                 let defaultCell = UITableViewCell()
                 defaultCell.textLabel?.numberOfLines = 2
                 defaultCell.textLabel?.text = "Нет данных о вашем местоположении"
@@ -101,9 +106,7 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
                 cell.configureCell(with: result)
             })
         case 2:
-            guard let city = viewModel?.savedCities?[indexPath.row] else {
-                return cell
-            }
+            guard let city = viewModel.savedCities?[indexPath.row] else { return UITableViewCell() }
             cell.configureCell(with: city)
         default: break
         }
@@ -120,7 +123,6 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
             coords["lon"] = lon
             NotificationCenter.default.post(name: Notification.Name(rawValue: "changeCoordinates"), object: nil, userInfo: coords)
             tabVC.selectedIndex = 0
-        
     }
     //MARK: - Swipe Actions
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -129,11 +131,15 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
             return nil
         case 2:
             let deleteActionTitle = NSLocalizedString("Delete", comment: "Delete action title")
+            guard let coordinate = viewModel?.savedCoordinates?[indexPath.row] else {
+                print("Error: can't find this coordinates")
+                return nil
+            }
             let deleteAction = UIContextualAction(style: .destructive, title: deleteActionTitle) { [unowned self] _, _, completion in
-                viewModel?.deleteCoordinates(from: indexPath) {
-                    tableView.reloadData()
-                }
-                completion(false)
+                viewModel?.deleteCoordinates(coordinate, completion: {
+                    print("Deleted")
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+                })
             }
             return UISwipeActionsConfiguration(actions: [deleteAction])
         default:
@@ -144,11 +150,17 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
     override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         switch indexPath.section {
         case 0:
-            guard let cell = getCell(for: indexPath), let cellViewModel = cell.viewModel else { return nil }
-            return setupSaveSwipeActions(with: cellViewModel)
+//            guard let cell = getCell(for: indexPath) else { return nil }
+            guard let viewModel = viewModel else {
+                return nil
+            }
+            return setupSaveSwipeActions(with: viewModel.searchResult!)
         case 1:
-            guard let cell = getCell(for: indexPath), let cellViewModel = cell.viewModel else { return nil }
-            return setupSaveSwipeActions(with: cellViewModel)
+            guard let viewModel = viewModel else {
+                return nil
+            }
+//            guard let cell = getCell(for: indexPath) else { return nil }
+            return setupSaveSwipeActions(with: (viewModel.currentLocationResult)!)
         case 2:
             return nil
         default:
@@ -165,7 +177,7 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
             return nil
         }
     }
-    private func setupSaveSwipeActions(with model: SearchTableViewCellViewModelProtocol) -> UISwipeActionsConfiguration {
+    private func setupSaveSwipeActions(with model: SearchDataModel) -> UISwipeActionsConfiguration {
         let saveActionTitle = NSLocalizedString("Save", comment: "Save action title")
         let saveAction = UIContextualAction(style: .normal, title: saveActionTitle) { [unowned self] _, _, completion in
                       let lat = model.latitude
