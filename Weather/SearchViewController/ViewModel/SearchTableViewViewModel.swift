@@ -59,9 +59,7 @@ class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
                     return
                 }
                 self.savedCities!.append(SearchDataModel(currentWeatherData: data)!)
-//                print("#1: \(savedCities?[0].cityName ?? "nil")")
                 completion()
-                savedCities = sort(cities: savedCities!, by: savedCoordinates)
             }
         }
     }
@@ -74,17 +72,5 @@ class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
     func saveCoordinates(latitude: Double, longitude: Double, completion: @escaping () -> Void) {
         StorageProvider.shared.saveCoordinates(lat: latitude, lon: longitude)
         completion()
-    }
-    
-    func sort(cities array1: [SearchDataModel], by array2: [Coordinates]) -> [SearchDataModel] {
-        var tempArray: [SearchDataModel] = []
-        for i in 0...array2.count-1 {
-            for a in 0...array1.count-1 {
-                if array2[i].latitude == array1[a].latitude && array2[i].longitude == array1[a].longitude {
-                    tempArray.append(array1[a])
-                }
-            }
-        }
-        return tempArray
     }
 }

@@ -28,7 +28,7 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
         setupSearchBar()
         DispatchQueue.main.async {
             self.viewModel?.fetchSavedCities(completion: { [unowned self] in
-                tableView.reloadData()
+                self.tableView.reloadData()
             })
         }
         let nib = UINib(nibName: "SearchTableViewCell", bundle: nil)
@@ -37,7 +37,7 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
+        tableView.reloadData()
     }
     
     private func setupSearchBar() {
@@ -185,11 +185,13 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
         let saveAction = UIContextualAction(style: .normal, title: saveActionTitle) { [unowned self] _, _, _ in
                       let lat = model.latitude
                       let lon = model.longitude
+            DispatchQueue.main.async {
                 viewModel?.saveCoordinates(latitude: lat, longitude: lon, completion: {
                     viewModel?.fetchSavedCities {
                         tableView.reloadData()
                     }
                 })
+            }
         }
         saveAction.backgroundColor = .systemGreen
         return UISwipeActionsConfiguration(actions: [saveAction])
