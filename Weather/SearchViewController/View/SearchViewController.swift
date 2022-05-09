@@ -27,11 +27,9 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
         }
         setupSearchBar()
         
-            self.viewModel?.fetchSavedCities(completion: {
-                DispatchQueue.main.async { [unowned self] in
-                tableView.reloadData()
-                }
-            })
+        viewModel?.fetchSavedCities(completion: { [unowned self] in
+            tableView.reloadData()
+        })
         
         let nib = UINib(nibName: "SearchTableViewCell", bundle: nil)
         tableView.register(nib, forCellReuseIdentifier: SearchTableViewCell.searchCellId)
@@ -131,14 +129,17 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
             return nil
         case 2:
             let deleteActionTitle = NSLocalizedString("Delete", comment: "Delete action title")
-            guard let coordinate = viewModel?.savedCoordinates?[indexPath.row] else {
-                print("Error: can't find this coordinates")
-                return nil
-            }
+            
             let deleteAction = UIContextualAction(style: .destructive, title: deleteActionTitle) { [unowned self] _, _, completion in
+                guard let coordinate = viewModel?.savedCoordinates?[indexPath.row] else {
+                    print("Error: can't find this coordinates")
+                    return
+                }
                 viewModel?.deleteCoordinates(coordinate, completion: {
-                    print("Deleted")
-                tableView.deleteRows(at: [indexPath], with: .automatic)
+                    print("Deleted, indexPath: \(indexPath)")
+//                    tableView.deleteRows(at: [indexPath], with: .automatic)
+                    viewModel?.savedCities?.remove(at: indexPath.row)
+                    tableView.reloadData()
                 })
             }
             return UISwipeActionsConfiguration(actions: [deleteAction])
@@ -179,13 +180,14 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
     }
     private func setupSaveSwipeActions(with model: SearchDataModel) -> UISwipeActionsConfiguration {
         let saveActionTitle = NSLocalizedString("Save", comment: "Save action title")
-        let saveAction = UIContextualAction(style: .normal, title: saveActionTitle) { [unowned self] _, _, completion in
+        let saveAction = UIContextualAction(style: .normal, title: saveActionTitle) { [unowned self] _, _, _ in
                       let lat = model.latitude
                       let lon = model.longitude
                 viewModel?.saveCoordinates(latitude: lat, longitude: lon, completion: {
-                    tableView.reloadData()
+                    viewModel?.fetchSavedCities {
+                        tableView.reloadData()
+                    }
                 })
-            completion(false)
         }
         saveAction.backgroundColor = .systemGreen
         return UISwipeActionsConfiguration(actions: [saveAction])

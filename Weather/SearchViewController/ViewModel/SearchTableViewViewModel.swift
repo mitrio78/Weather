@@ -52,30 +52,39 @@ class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
             print("no saved coords in vm")
             return
         }
-        
         for coordinate in savedCoordinates {
-                self.networkService.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: CLLocationDegrees(Float(coordinate.latitude)), longitude: CLLocationDegrees(Float(coordinate.longitude)) )) { [unowned self] (data) in
-                    guard let data = data else {
-                        print("Failed to fetch saved city data")
-                        return
-                    }
-                    self.savedCities!.append(SearchDataModel(currentWeatherData: data)!)
-                    completion()
+            self.networkService.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: CLLocationDegrees(Float(coordinate.latitude)), longitude: CLLocationDegrees(Float(coordinate.longitude)) )) { [unowned self] (data) in
+                guard let data = data else {
+                    print("Failed to fetch saved city data")
+                    return
                 }
+                self.savedCities!.append(SearchDataModel(currentWeatherData: data)!)
+                print("#1: \(savedCities?[0].cityName ?? "nil")")
+                completion()
+                savedCities = sort(cities: savedCities!, by: savedCoordinates)
             }
+        }
     }
     
     func deleteCoordinates(_ coordinate: Coordinates, completion: @escaping () -> Void) {
         StorageProvider.shared.deleteCoordinates(coordinate)
-        fetchSavedCities {
-        }
         completion()
     }
     
     func saveCoordinates(latitude: Double, longitude: Double, completion: @escaping () -> Void) {
         StorageProvider.shared.saveCoordinates(lat: latitude, lon: longitude)
-        fetchSavedCities {
-            completion()
+        completion()
+    }
+    
+    func sort(cities array1: [SearchDataModel], by array2: [Coordinates]) -> [SearchDataModel] {
+        var tempArray: [SearchDataModel] = []
+        for i in 0...array2.count-1 {
+            for a in 0...array1.count-1 {
+                if array2[i].latitude == array1[a].latitude && array2[i].longitude == array1[a].longitude {
+                    tempArray.append(array1[a])
+                }
+            }
         }
+        return tempArray
     }
 }
