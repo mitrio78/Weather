@@ -8,11 +8,13 @@
 import UIKit
 
 struct DailyWeatherModel {
-    var date: Date
+    var date: Double
     var dateStrind: String {
+        let newDate = NSDate(timeIntervalSince1970: date)
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "d MMMM"
-        return dateFormatter.string(from: date)
+        dateFormatter.locale = Locale(identifier: "ru_Ru")
+        dateFormatter.dateFormat = "d, EE"
+        return dateFormatter.string(from: newDate as Date)
     }
     var dailyMaxTemp: Double
     var dMaxTempString: String {

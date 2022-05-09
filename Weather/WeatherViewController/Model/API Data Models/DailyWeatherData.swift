@@ -12,7 +12,7 @@ struct DailyWeatherData: Codable {
 }
 
 struct Daily: Codable {
-    var dt: Date
+    var dt: Double
     var temp: Temp
     var humidity: Int
     var weather: [DWeather]
