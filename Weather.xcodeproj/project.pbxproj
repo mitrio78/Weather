@@ -121,7 +121,6 @@
 		5525262A280C7ED900B482E0 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				5566AB1B28230C6300D5C47D /* Settings */,
 				55252631280C7F7400B482E0 /* Controller */,
 				55252648280D855500B482E0 /* Cells */,
 			);
@@ -131,6 +130,7 @@
 		55252631280C7F7400B482E0 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				5566AB1B28230C6300D5C47D /* Settings */,
 				55747C8A28084EFE0051A42D /* WeatherViewController.swift */,
 			);
 			path = Controller;

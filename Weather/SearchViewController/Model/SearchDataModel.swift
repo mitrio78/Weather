@@ -8,7 +8,6 @@
 import Foundation
 
 struct SearchDataModel {
-    
     var cityName: String
     var weatherCode: Int
     var temp: Double
@@ -25,7 +24,6 @@ struct SearchDataModel {
         latitude = currentWeatherData.coord.lat
         longitude = currentWeatherData.coord.lon
     }
-    
     init?(cityName: String, temp: Double, weatherCode: Int, latitude: Double, longitude: Double) {
         self.cityName = cityName
         self.temp = temp

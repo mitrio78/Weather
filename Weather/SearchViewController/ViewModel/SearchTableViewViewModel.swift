@@ -39,7 +39,7 @@ class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
                 print("no data")
                 return
             }
-            print("Location!")
+//            print("Location!")
             self.currentLocationResult = SearchDataModel(currentWeatherData: data)
             completion(currentLocationResult!)
         }
@@ -59,7 +59,7 @@ class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
                     return
                 }
                 self.savedCities!.append(SearchDataModel(currentWeatherData: data)!)
-                print("#1: \(savedCities?[0].cityName ?? "nil")")
+//                print("#1: \(savedCities?[0].cityName ?? "nil")")
                 completion()
                 savedCities = sort(cities: savedCities!, by: savedCoordinates)
             }

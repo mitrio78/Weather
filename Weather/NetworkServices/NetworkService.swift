@@ -5,7 +5,7 @@
 //  Created by Mitrio on 03.05.2022.
 //
 
-import UIKit
+import Foundation
 import Alamofire
 import CoreLocation
 
@@ -16,7 +16,6 @@ protocol NetworkServiceProtocol: AnyObject {
 }
 
 class NetworkService<T:Codable>: NetworkServiceProtocol {
-    
     enum RequestType {
         case cityName(city: String)
         case coordinatesForCurrentWeatherCallApi(latitude: CLLocationDegrees, longitude: CLLocationDegrees)
@@ -26,16 +25,22 @@ class NetworkService<T:Codable>: NetworkServiceProtocol {
     func fetchWeather(request: RequestType, completion: @escaping (T?) -> Void) {
         let apiKey = NetworkSettings.apiKey
         let lang = NetworkSettings.lang
+        let body = NetworkSettings.body
+        let currentWeatherCall = NetworkSettings.currentWeatherApi
+        let oneCall = NetworkSettings.oneCallApi
+        
         var url: String {
             switch request {
             case .cityName(let city):
-                return "https://api.openweathermap.org/data/2.5/weather?q=\(city)&appid=\(apiKey)&units=metric&lang=\(lang)"
+                let url = body + currentWeatherCall + "q=\(city)&appid=\(apiKey)&units=metric&lang=\(lang)"
+                return url
             case .coordinatesForCurrentWeatherCallApi(let latitude, let longitude):
-                return "https://api.openweathermap.org/data/2.5/weather?lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)&units=metric&lang=\(lang)"
+                return body + currentWeatherCall + "lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)&units=metric&lang=\(lang)"
             case .coordinatesForOneCallApi(latitude: let latitude, longitude: let longitude):
-                return "https://api.openweathermap.org/data/2.5/onecall?lat=\(latitude)&lon=\(longitude)&exclude=current,minutely,alerts&appid=\(apiKey)&units=metric&lang=\(lang)"
+                return body + oneCall + "lat=\(latitude)&lon=\(longitude)&exclude=current,minutely,alerts&appid=\(apiKey)&units=metric&lang=\(lang)"
             }
         }
+        
         AF.request(url).responseData { (dataResponse) in
             if let error = dataResponse.error {
                 print("Error recieved from response \(error.localizedDescription)")

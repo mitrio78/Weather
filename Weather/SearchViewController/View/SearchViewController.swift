@@ -26,11 +26,11 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
             locationManager.startUpdatingLocation()
         }
         setupSearchBar()
-        
-        viewModel?.fetchSavedCities(completion: { [unowned self] in
-            tableView.reloadData()
-        })
-        
+        DispatchQueue.main.async {
+            self.viewModel?.fetchSavedCities(completion: { [unowned self] in
+                tableView.reloadData()
+            })
+        }
         let nib = UINib(nibName: "SearchTableViewCell", bundle: nil)
         tableView.register(nib, forCellReuseIdentifier: SearchTableViewCell.searchCellId)
     }
@@ -93,6 +93,8 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
                 return defaultCell
             }
             cell.configureCell(with: searchResult)
+            return cell
+
         case 1:
             guard let currentLocation = viewModel.currentLocation else {
                 let defaultCell = UITableViewCell()
@@ -103,12 +105,14 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
             self.viewModel?.fetchLocationData(location: currentLocation as! LocationCoordinates, completion: { (result) in
                 cell.configureCell(with: result)
             })
+            return cell
+
         case 2:
             guard let city = viewModel.savedCities?[indexPath.row] else { return UITableViewCell() }
             cell.configureCell(with: city)
-        default: break
+            return cell
+        default: return UITableViewCell()
         }
-        return cell
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -151,7 +155,6 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
     override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         switch indexPath.section {
         case 0:
-//            guard let cell = getCell(for: indexPath) else { return nil }
             guard let viewModel = viewModel else {
                 return nil
             }
@@ -160,7 +163,6 @@ class SearchViewController: UITableViewController, CLLocationManagerDelegate {
             guard let viewModel = viewModel else {
                 return nil
             }
-//            guard let cell = getCell(for: indexPath) else { return nil }
             return setupSaveSwipeActions(with: (viewModel.currentLocationResult)!)
         case 2:
             return nil
