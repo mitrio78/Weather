@@ -26,7 +26,7 @@ protocol SearchTableViewViewModelProtocol {
     //fetchData
     func fetchSearchData(searchText: String, completion: @escaping () -> ())
     func fetchLocationData(location: LocationCoordinates, completion: @escaping (SearchDataModel) -> ())
-    func fetchSavedCities(completion: @escaping () -> Void)
+    func fetchSavedCities() async
     //CoreData
     func saveCoordinates(latitude: Double, longitude: Double)
 //    func deleteCoordinates(from indexPath: IndexPath, completion: @escaping () -> Void)

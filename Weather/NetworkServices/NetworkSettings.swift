@@ -14,3 +14,10 @@ struct NetworkSettings {
     static let oneCallApi = "onecall?"
     static let currentWeatherApi = "weather?"
 }
+
+enum APIError: Error, Codable {
+    case wrongUrl
+    case dataTaskError(descriprion: String)
+    case invalidResponseStatus
+    case JSONDecoderError(descriprion: String)
+}

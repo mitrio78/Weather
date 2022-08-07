@@ -10,6 +10,7 @@ import CoreLocation
 
 final class SearchViewController: UITableViewController, CLLocationManagerDelegate {
     
+    // MARK: Properties
     let searchController = UISearchController(searchResultsController: nil)
     private var timer: Timer?
     let locationManager = CLLocationManager()
@@ -22,9 +23,10 @@ final class SearchViewController: UITableViewController, CLLocationManagerDelega
         viewModel = SearchTableViewViewModel()
         requestLocation()
         setupSearchBar()
-        self.viewModel?.fetchSavedCities(completion: { [weak self] in
-            self?.tableView.reloadData()
-        })
+        Task {
+            await viewModel?.fetchSavedCities()
+            tableView.reloadData()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -32,6 +34,7 @@ final class SearchViewController: UITableViewController, CLLocationManagerDelega
         tableView.reloadData()
     }
     
+    // MARK: Methods
     private func registerCell() {
         let nib = UINib(nibName: String(describing: SearchTableViewCell.self), bundle: nil)
         tableView.register(nib, forCellReuseIdentifier: SearchTableViewCell.searchCellId)
@@ -137,6 +140,7 @@ final class SearchViewController: UITableViewController, CLLocationManagerDelega
         )
         tabVC.selectedIndex = 0
     }
+    
     //MARK: - Swipe Actions
     override func tableView(
         _ tableView: UITableView,
@@ -156,24 +160,24 @@ final class SearchViewController: UITableViewController, CLLocationManagerDelega
                 }
                 let globalQueue = DispatchQueue.global(qos: .userInitiated)
                 let group = DispatchGroup()
+                let mainQueue = DispatchQueue.main
                 group.enter()
                 globalQueue.sync {
                     self?.viewModel?.deleteCoordinates(coordinate, completion: {
-                        print("Deleting: \(String(describing: self?.viewModel?.savedCities![indexPath.row].latitude))")
                         self?.viewModel?.savedCities?.remove(at: indexPath.row)
                     })
                     group.leave()
                 }
                 group.enter()
-                globalQueue.sync {
-                    self?.viewModel?.fetchSavedCities(completion: {
-                        DispatchQueue.main.async {
-                            self?.tableView.reloadData()
-                        }
-                    })
+                Task { [weak self] in
+                    await self?.viewModel?.fetchSavedCities()
                     group.leave()
                 }
+                group.notify(queue: mainQueue) {
+                    self?.tableView.reloadData()
+                }
             }
+            
             return UISwipeActionsConfiguration(actions: [deleteAction])
         default:
             return nil
@@ -211,48 +215,59 @@ final class SearchViewController: UITableViewController, CLLocationManagerDelega
             return nil
         }
     }
+    
     private func setupSaveSwipeActions(with model: SearchDataModel) -> UISwipeActionsConfiguration {
         let saveActionTitle = NSLocalizedString("Save", comment: "Save action title")
         let saveAction = UIContextualAction(style: .normal, title: saveActionTitle) { [weak self] _, _, _ in
             let lat = model.latitude
             let lon = model.longitude
             let savingGroup = DispatchGroup()
+            let mainQueue = DispatchQueue.main
             savingGroup.enter()
-            print("1")
             self?.viewModel?.saveCoordinates(
                 latitude: lat,
                 longitude: lon
             )
             savingGroup.leave()
-            print("2")
-            self?.viewModel?.fetchSavedCities {
-                DispatchQueue.main.async {
-                    print("3")
-                    self?.tableView.reloadData()
-                }
+            savingGroup.enter()
+            Task { [weak self] in
+                await self?.viewModel?.fetchSavedCities()
+                savingGroup.leave()
+            }
+            savingGroup.notify(queue: mainQueue) {
+                self?.tableView.reloadData()
             }
         }
         saveAction.backgroundColor = .systemGreen
         return UISwipeActionsConfiguration(actions: [saveAction])
     }
 }
+
 //MARK: Search Bar Delegate
 extension SearchViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [weak self] (_) in
-            self?.viewModel?.fetchSearchData(searchText: searchText, completion: { [weak self] in
+        timer = Timer.scheduledTimer(
+            withTimeInterval: 0.5,
+            repeats: false,
+            block: { [weak self] (_) in
+            self?.viewModel?.fetchSearchData(
+                searchText: searchText,
+                completion: { [weak self] in
                 self?.tableView.reloadData()
             })
         })
     }
 }
+
 //MARK: Location Manager Delegate
 extension SearchViewController {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
-        viewModel?.currentLocation = LocationCoordinates(latitude: locValue.latitude, longitude: locValue.longitude)
+        viewModel?.currentLocation = LocationCoordinates(
+            latitude: locValue.latitude,
+            longitude: locValue.longitude
+        )
         tableView.reloadData()
     }
 }
-
