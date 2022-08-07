@@ -50,27 +50,30 @@ final class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
         guard let savedCoordinates = savedCoordinates else {
             return
         }
+        
         let mainQueue = DispatchQueue.main
         let group = DispatchGroup()
-        for coordinate in savedCoordinates {
-            
-            // TODO: BUG! Needs to be sync!
-            print("Coord")
+        
+        // TODO: Bugfis with async
+        savedCoordinates.forEach { coordinate in
             group.enter()
-            self.networkService.fetchWeather(
+            print("Enter group")
+            print(String(describing: coordinate.latitude))
+            
+            networkService.fetchWeather(
                 request: .coordinatesForCurrentWeatherCallApi(
                     latitude: CLLocationDegrees(Double(coordinate.latitude)),
-                    longitude: CLLocationDegrees(Double(coordinate.longitude))
-                )) { [weak self] (data) in
-                    
-                    guard let data = data else {
-                        fatalError("Failed to recieve data from request")
+                    longitude: CLLocationDegrees(Double(coordinate.longitude)))) { [weak self] data in
+                        guard let data = data else {
+                            fatalError("Failed to recieve data from response")
+                        }
+                        let model = SearchDataModel(currentWeatherData: data)
+                        self?.savedCities?.append(model!)
+                        print(String(describing: model?.latitude))
+                        group.leave()
                     }
-                    print("City")
-                    self?.savedCities!.append(SearchDataModel(currentWeatherData: data)!)
-                    group.leave()
-                }
         }
+        
         group.notify(queue: mainQueue) {
             completion()
         }
