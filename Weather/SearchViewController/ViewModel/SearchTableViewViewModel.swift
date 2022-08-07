@@ -8,7 +8,7 @@
 import Foundation
 import CoreLocation
 
-class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
+final class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
     
     var savedCoordinates: [Coordinates]?
     var savedCities: [SearchDataModel]?
@@ -39,7 +39,6 @@ class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
                 print("no data")
                 return
             }
-//            print("Location!")
             self.currentLocationResult = SearchDataModel(currentWeatherData: data)
             completion(currentLocationResult!)
         }
@@ -49,41 +48,41 @@ class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
         savedCoordinates = StorageProvider.shared.getAllCoordinates()
         savedCities = []
         guard let savedCoordinates = savedCoordinates else {
-            print("no saved coords in vm")
             return
         }
+        let mainQueue = DispatchQueue.main
+        let group = DispatchGroup()
         for coordinate in savedCoordinates {
-            self.networkService.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: CLLocationDegrees(Float(coordinate.latitude)), longitude: CLLocationDegrees(Float(coordinate.longitude)) )) { [unowned self] (data) in
-                guard let data = data else {
-                    print("Failed to fetch saved city data")
-                    return
+            
+            // TODO: BUG! Needs to be sync!
+            print("Coord")
+            group.enter()
+            self.networkService.fetchWeather(
+                request: .coordinatesForCurrentWeatherCallApi(
+                    latitude: CLLocationDegrees(Double(coordinate.latitude)),
+                    longitude: CLLocationDegrees(Double(coordinate.longitude))
+                )) { [weak self] (data) in
+                    
+                    guard let data = data else {
+                        fatalError("Failed to recieve data from request")
+                    }
+                    print("City")
+                    self?.savedCities!.append(SearchDataModel(currentWeatherData: data)!)
+                    group.leave()
                 }
-                self.savedCities!.append(SearchDataModel(currentWeatherData: data)!)
-                //savedCities = sort(cities: savedCities!, by: savedCoordinates)
-                completion()
-            }
+        }
+        group.notify(queue: mainQueue) {
+            completion()
         }
     }
     
     func deleteCoordinates(_ coordinate: Coordinates, completion: @escaping () -> Void) {
+        print("Deleting latitude: \(coordinate.latitude)")
         StorageProvider.shared.deleteCoordinates(coordinate)
         completion()
     }
     
-    func saveCoordinates(latitude: Double, longitude: Double, completion: @escaping () -> Void) {
+    func saveCoordinates(latitude: Double, longitude: Double) {
         StorageProvider.shared.saveCoordinates(lat: latitude, lon: longitude)
-        completion()
-    }
-    
-    func sort(cities array1: [SearchDataModel], by array2: [Coordinates]) -> [SearchDataModel] {
-        var tempArray: [SearchDataModel] = []
-        for i in 0...array2.count-1 {
-            for a in 0...array1.count-1 {
-                if array2[i].latitude == array1[a].latitude && array2[i].longitude == array1[a].longitude {
-                    tempArray.append(array1[a])
-                }
-            }
-        }
-        return tempArray
     }
 }

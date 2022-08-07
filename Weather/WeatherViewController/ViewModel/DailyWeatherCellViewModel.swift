@@ -7,7 +7,7 @@
 
 import Foundation
 
-class DailyWeatherCellViewModel: DailyWeatherCellViewModelProtocol {
+final class DailyWeatherCellViewModel: DailyWeatherCellViewModelProtocol {
     
     var date: String
     

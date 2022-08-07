@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HourlyForecastCell: UITableViewCell {
+final class HourlyForecastCell: UITableViewCell {
     
     var hourlyWeatherViewModel: [HourlyWeatherCellViewModelProtocol]? = []
     
@@ -36,7 +36,10 @@ extension HourlyForecastCell {
         collectionViewLayout.scrollDirection = .horizontal
         collectionView.showsHorizontalScrollIndicator = false
         let nibCell = UINib(nibName: "HourlyCollectionCell", bundle: nil)
-        collectionView.register(nibCell, forCellWithReuseIdentifier: HourlyWeatherCollectionCell.identifier)
+        collectionView.register(
+            nibCell,
+            forCellWithReuseIdentifier: HourlyWeatherCollectionCell.identifier
+        )
         collectionView.delegate = self
         collectionView.dataSource = self
         addSubview(collectionView)

@@ -37,8 +37,9 @@ struct StorageProvider {
     
     func getAllCoordinates() -> [Coordinates] {
         let fetchRequest: NSFetchRequest<Coordinates> = Coordinates.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true)]
         do {
-            print("getting saved")
+            print("getting saved cities")
             return try persistantContainer.viewContext.fetch(fetchRequest)
         } catch {
             print("Failed to fetch coordinates: \(error.localizedDescription)")

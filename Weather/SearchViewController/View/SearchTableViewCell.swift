@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SearchTableViewCell: UITableViewCell {
+final class SearchTableViewCell: UITableViewCell {
     static let searchCellId = "SearchCell"
     var viewModel: SearchTableViewCellViewModelProtocol?
     

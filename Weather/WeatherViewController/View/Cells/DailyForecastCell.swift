@@ -7,7 +7,7 @@
 
 import UIKit
 
-class DailyForecastCell: UITableViewCell {
+final class DailyForecastCell: UITableViewCell {
     
     @IBOutlet weak var dayLabel: UILabel!
     @IBOutlet weak var dailyMaxTempLabel: UILabel!

@@ -7,10 +7,8 @@
 
 import UIKit
 
-class CurrentWeatherCell: UITableViewCell {
+final class CurrentWeatherCell: UITableViewCell {
             
-    
-    
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var currentConditionsLabel: UILabel!
     @IBOutlet weak var currentTempLabel: UILabel!
@@ -21,8 +19,8 @@ class CurrentWeatherCell: UITableViewCell {
     }
     
     func configure(viewModel: WeatherViewModelProtocol) {
-        cityLabel.text = viewModel.currentWeatherCellViewModel?.cityName
-        currentTempLabel.text = viewModel.currentWeatherCellViewModel?.currentTemp
+        cityLabel.text              = viewModel.currentWeatherCellViewModel?.cityName
+        currentTempLabel.text       = viewModel.currentWeatherCellViewModel?.currentTemp
         currentConditionsLabel.text = viewModel.currentWeatherCellViewModel?.currentConditions
         currentMaxMinTempLabel.text = viewModel.currentWeatherCellViewModel?.currentMaxMinTempString
     }

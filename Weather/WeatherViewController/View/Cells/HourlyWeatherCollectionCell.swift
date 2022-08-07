@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HourlyWeatherCollectionCell: UICollectionViewCell {
+final class HourlyWeatherCollectionCell: UICollectionViewCell {
 
     @IBOutlet weak var hourlyWeatherLabel: UILabel!
     @IBOutlet weak var hourLabel: UILabel!

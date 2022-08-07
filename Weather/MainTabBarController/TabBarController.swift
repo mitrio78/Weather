@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TabBarController: UITabBarController {
+final class TabBarController: UITabBarController {
     var coords: LocationCoordinates = LocationCoordinates(latitude: 21, longitude: 23)
     override func viewDidLoad() {
         super.viewDidLoad()

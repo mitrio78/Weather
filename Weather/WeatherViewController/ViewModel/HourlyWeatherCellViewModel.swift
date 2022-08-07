@@ -7,7 +7,7 @@
 
 import Foundation
 
-class HourlyWeatherCellViewModel: HourlyWeatherCellViewModelProtocol {
+final class HourlyWeatherCellViewModel: HourlyWeatherCellViewModelProtocol {
 
     var hourlyWeather: HourlyWeatherModel
     

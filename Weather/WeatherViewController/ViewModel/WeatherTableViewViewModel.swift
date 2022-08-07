@@ -8,7 +8,7 @@
 import Foundation
 import CoreLocation
 
-class WeatherTableViewViewModel: WeatherViewModelProtocol {
+final class WeatherTableViewViewModel: WeatherViewModelProtocol {
     
     var coordinates: LocationCoordinatesProtocol?
     

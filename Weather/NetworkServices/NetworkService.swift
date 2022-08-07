@@ -15,7 +15,7 @@ protocol NetworkServiceProtocol: AnyObject {
     func fetchWeather(request: RequestType, completion: @escaping (T?) -> Void)
 }
 
-class NetworkService<T:Codable>: NetworkServiceProtocol {
+final class NetworkService<T:Codable>: NetworkServiceProtocol {
     enum RequestType {
         case cityName(city: String)
         case coordinatesForCurrentWeatherCallApi(latitude: CLLocationDegrees, longitude: CLLocationDegrees)

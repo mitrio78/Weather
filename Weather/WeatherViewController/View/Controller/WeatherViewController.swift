@@ -8,7 +8,7 @@
 import UIKit
 import CoreLocation
 
-class WeatherViewController: UITableViewController {
+final class WeatherViewController: UITableViewController {
     
     var viewModel: WeatherViewModelProtocol?
     
