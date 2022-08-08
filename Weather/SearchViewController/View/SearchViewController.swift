@@ -15,6 +15,7 @@ final class SearchViewController: UITableViewController, CLLocationManagerDelega
     private var timer: Timer?
     let locationManager = CLLocationManager()
     var viewModel: SearchTableViewViewModelProtocol?
+    let globalConcurrentQueue = DispatchQueue(label: "com.concurrent", qos: .userInitiated, attributes: .concurrent)
     
     // MARK: Life cycle
     override func viewDidLoad() {
@@ -97,8 +98,8 @@ final class SearchViewController: UITableViewController, CLLocationManagerDelega
         case 0:
             guard let searchResult = viewModel.searchResult else {
                 let defaultCell = UITableViewCell()
-                defaultCell.textLabel?.text = "Введите условия поиска на английском языке"
-                defaultCell.textLabel?.numberOfLines = 2
+                defaultCell.textLabel?.text = "Введите условия поиска на английском"
+                defaultCell.textLabel?.numberOfLines = .zero
                 return defaultCell
             }
             cell.configureCell(with: searchResult)
@@ -107,7 +108,7 @@ final class SearchViewController: UITableViewController, CLLocationManagerDelega
         case 1:
             guard let currentLocation = viewModel.currentLocation else {
                 let defaultCell = UITableViewCell()
-                defaultCell.textLabel?.numberOfLines = 2
+                defaultCell.textLabel?.numberOfLines = .zero
                 defaultCell.textLabel?.text = "Нет данных о вашем местоположении"
                 return defaultCell
             }
@@ -161,20 +162,23 @@ final class SearchViewController: UITableViewController, CLLocationManagerDelega
                 let globalQueue = DispatchQueue.global(qos: .userInitiated)
                 let group = DispatchGroup()
                 let mainQueue = DispatchQueue.main
-                group.enter()
-                globalQueue.sync {
-                    self?.viewModel?.deleteCoordinates(coordinate, completion: {
-                        self?.viewModel?.savedCities?.remove(at: indexPath.row)
-                    })
-                    group.leave()
-                }
-                group.enter()
-                Task { [weak self] in
-                    await self?.viewModel?.fetchSavedCities()
-                    group.leave()
-                }
-                group.notify(queue: mainQueue) {
-                    self?.tableView.reloadData()
+                self?.globalConcurrentQueue.sync {
+                    group.enter()
+                    globalQueue.sync {
+                        self?.viewModel?.deleteCoordinates(coordinate, completion: {
+                            self?.viewModel?.savedCities?.remove(at: indexPath.row)
+                        })
+                        group.leave()
+                    }
+                    // TODO: No animation(
+                    group.enter()
+                    Task { [weak self] in
+                        await self?.viewModel?.fetchSavedCities()
+                        group.leave()
+                    }
+                    group.notify(queue: mainQueue) {
+                        self?.tableView.reloadData()
+                    }
                 }
             }
             
@@ -223,19 +227,21 @@ final class SearchViewController: UITableViewController, CLLocationManagerDelega
             let lon = model.longitude
             let savingGroup = DispatchGroup()
             let mainQueue = DispatchQueue.main
-            savingGroup.enter()
-            self?.viewModel?.saveCoordinates(
-                latitude: lat,
-                longitude: lon
-            )
-            savingGroup.leave()
-            savingGroup.enter()
-            Task { [weak self] in
-                await self?.viewModel?.fetchSavedCities()
+            self?.globalConcurrentQueue.sync {
+                savingGroup.enter()
+                self?.viewModel?.saveCoordinates(
+                    latitude: lat,
+                    longitude: lon
+                )
                 savingGroup.leave()
-            }
-            savingGroup.notify(queue: mainQueue) {
-                self?.tableView.reloadData()
+                savingGroup.enter()
+                Task { [weak self] in
+                    await self?.viewModel?.fetchSavedCities()
+                    savingGroup.leave()
+                }
+                savingGroup.notify(queue: mainQueue) {
+                    self?.tableView.reloadData()
+                }
             }
         }
         saveAction.backgroundColor = .systemGreen
@@ -251,7 +257,7 @@ extension SearchViewController: UISearchBarDelegate {
             withTimeInterval: 0.5,
             repeats: false,
             block: { [weak self] (_) in
-            self?.viewModel?.fetchSearchData(
+                self?.viewModel?.fetchSearchData(
                 searchText: searchText,
                 completion: { [weak self] in
                 self?.tableView.reloadData()
