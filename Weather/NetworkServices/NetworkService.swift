@@ -22,25 +22,47 @@ final class NetworkService<T:Codable>: NetworkServiceProtocol {
         case coordinatesForOneCallApi(latitude: CLLocationDegrees, longitude: CLLocationDegrees)
     }
     
-    func fetchWeather(request: RequestType, completion: @escaping (T?) -> Void) {
-        let apiKey = NetworkSettings.apiKey
-        let lang = NetworkSettings.lang
-        let body = NetworkSettings.body
-        let currentWeatherCall = NetworkSettings.currentWeatherApi
-        let oneCall = NetworkSettings.oneCallApi
-        
-        var url: String {
-            switch request {
-            case .cityName(let city):
-                let url = body + currentWeatherCall + "q=\(city)&appid=\(apiKey)&units=metric&lang=\(lang)"
-                return url
-            case .coordinatesForCurrentWeatherCallApi(let latitude, let longitude):
-                return body + currentWeatherCall + "lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)&units=metric&lang=\(lang)"
-            case .coordinatesForOneCallApi(latitude: let latitude, longitude: let longitude):
-                return body + oneCall + "lat=\(latitude)&lon=\(longitude)&exclude=current,minutely,alerts&appid=\(apiKey)&units=metric&lang=\(lang)"
-            }
+    private let apiKey = NetworkSettings.apiKey
+    private let lang = NetworkSettings.lang
+    private let body = NetworkSettings.body
+    private let currentWeatherCall = NetworkSettings.currentWeatherApi
+    private let oneCall = NetworkSettings.oneCallApi
+    
+    private func getUrl(for request: RequestType) -> String {
+        switch request {
+        case .cityName(let city):
+            let url = body + currentWeatherCall + "q=\(city)&appid=\(apiKey)&units=metric&lang=\(lang)"
+            return url
+        case .coordinatesForCurrentWeatherCallApi(let latitude, let longitude):
+            return body + currentWeatherCall + "lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)&units=metric&lang=\(lang)"
+        case .coordinatesForOneCallApi(latitude: let latitude, longitude: let longitude):
+            return body + oneCall + "lat=\(latitude)&lon=\(longitude)&exclude=current,minutely,alerts&appid=\(apiKey)&units=metric&lang=\(lang)"
         }
-        
+    }
+    
+    func getWeatherAsyncroniously(for request: RequestType) async throws -> T {
+        guard let url = URL(string: getUrl(for: request)) else {
+            throw APIError.wrongUrl
+        }
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                throw APIError.invalidResponseStatus
+            }
+            let decoder = JSONDecoder()
+            do {
+                let decodedData = try decoder.decode(T.self, from: data)
+                return decodedData
+            } catch {
+                throw APIError.JSONDecoderError(descriprion: error.localizedDescription)
+            }
+        } catch {
+            throw APIError.dataTaskError(descriprion: error.localizedDescription)
+        }
+    }
+    
+    func fetchWeather(request: RequestType, completion: @escaping (T?) -> Void) {
+        let url = getUrl(for: request)
         AF.request(url).responseData { (dataResponse) in
             if let error = dataResponse.error {
                 print("Error recieved from response \(error.localizedDescription)")

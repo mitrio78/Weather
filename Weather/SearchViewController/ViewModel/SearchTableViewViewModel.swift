@@ -18,69 +18,56 @@ final class SearchTableViewViewModel: SearchTableViewViewModelProtocol {
     var networkService = NetworkService<CurrentWeatherData>()
     
     func fetchSearchData(searchText: String, completion: @escaping () -> ()) {
-        self.networkService.fetchWeather(request: .cityName(city: searchText)) { [unowned self] (result) in
+        self.networkService.fetchWeather(request: .cityName(city: searchText)) { [weak self] (result) in
             guard let result = result else {
-                searchResult = nil
+                self?.searchResult = nil
                 completion()
                 return
             }
-            self.searchResult = SearchDataModel(currentWeatherData: result)
+            self?.searchResult = SearchDataModel(currentWeatherData: result)
             completion()
         }
     }
     
     func fetchLocationData(location: LocationCoordinates, completion: @escaping (SearchDataModel) -> ()) {
         guard let currentLocation = currentLocation else {
-            print("no location")
             return
         }
-        self.networkService.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: currentLocation.latitude, longitude: currentLocation.longitude)) { [unowned self] (data) in
+        self.networkService.fetchWeather(request: .coordinatesForCurrentWeatherCallApi(latitude: currentLocation.latitude, longitude: currentLocation.longitude)) { [weak self] (data) in
             guard let data = data else {
-                print("no data")
                 return
             }
-            self.currentLocationResult = SearchDataModel(currentWeatherData: data)
-            completion(currentLocationResult!)
+            self?.currentLocationResult = SearchDataModel(currentWeatherData: data)
+            guard let result = self?.currentLocationResult else {
+                return
+            }
+            completion(result)
         }
     }
     
-    func fetchSavedCities(completion: @escaping () -> Void) {
+    func fetchSavedCities() async {
         savedCoordinates = StorageProvider.shared.getAllCoordinates()
         savedCities = []
         guard let savedCoordinates = savedCoordinates else {
             return
         }
-        
-        let mainQueue = DispatchQueue.main
-        let group = DispatchGroup()
-        
-        // TODO: Bugfis with async
-        savedCoordinates.forEach { coordinate in
-            group.enter()
-            print("Enter group")
-            print(String(describing: coordinate.latitude))
-            
-            networkService.fetchWeather(
-                request: .coordinatesForCurrentWeatherCallApi(
+        for coordinate in savedCoordinates {
+            let cityWeather: CurrentWeatherData?
+            do {
+            cityWeather = try await networkService.getWeatherAsyncroniously(
+                for: .coordinatesForCurrentWeatherCallApi(
                     latitude: CLLocationDegrees(Double(coordinate.latitude)),
-                    longitude: CLLocationDegrees(Double(coordinate.longitude)))) { [weak self] data in
-                        guard let data = data else {
-                            fatalError("Failed to recieve data from response")
-                        }
-                        let model = SearchDataModel(currentWeatherData: data)
-                        self?.savedCities?.append(model!)
-                        print(String(describing: model?.latitude))
-                        group.leave()
-                    }
-        }
-        
-        group.notify(queue: mainQueue) {
-            completion()
+                    longitude: CLLocationDegrees(Double(coordinate.longitude))
+                ))
+                let newElement = SearchDataModel(currentWeatherData: cityWeather!)!
+                savedCities?.append(newElement)
+            } catch {
+                // TODO: Error handling
+            }
         }
     }
     
     func deleteCoordinates(_ coordinate: Coordinates, completion: @escaping () -> Void) {
-        print("Deleting latitude: \(coordinate.latitude)")
         StorageProvider.shared.deleteCoordinates(coordinate)
         completion()
     }
